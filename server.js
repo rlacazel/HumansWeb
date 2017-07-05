@@ -5,6 +5,9 @@ const util = require('util');
 
 var express = require('express');
 var app = express();
+var fortune = require('./lib/fortune.js');
+
+
 app.use(express.static('public'));
 
 // set up handlebars view engine
@@ -24,15 +27,8 @@ app.post('/', function (req, res) {
     res.send('Hello POST');
 })
 
-var fortunes = ["Conquer your fears or they will conquer you.",
-    "Rivers need springs.",
-    "Do not fear what you don't know.",
-    "You will have a pleasant surprise.",
-    "Whenever possible, keep it simple.", ];
-
 app.get('/about', function(req, res){
-    var randomFortune =  fortunes[Math.floor(Math.random() * fortunes.length)];
-    res.render('about', { fortune: randomFortune });
+    res.render('about', { fortune: fortune.getFortune() });
 });
 
 
@@ -54,8 +50,56 @@ app.get('/ab*cd', function(req, res) {
     res.send('Page Pattern Match');
 })
 
+
 app.get('/index.html', function (req, res) {
-    res.sendFile( __dirname + "/" + "index.html" );
+    var d3 = require('d3')
+        , jsdom = require('jsdom')
+        , fs = require('fs')
+        , htmlStub = '<div id="dataviz-container"></div>'
+
+    jsdom.env({
+        features : { QuerySelector : true }
+        , html : htmlStub
+        , done : function(errors, window) {
+            // this callback function pre-renders the dataviz inside the html document, then export result into a static file
+
+            var el = window.document.querySelector('#dataviz-container')
+                //, body = window.document.querySelector('body')
+                , circleId = 'a2324'  // say, this value was dynamically retrieved from some database
+
+            // generate the dataviz
+            d3.select(el)
+                .append('svg:svg')
+                .attr('width', 600)
+                .attr('height', 300)
+                .append('circle')
+                .attr('cx', 300)
+                .attr('cy', 150)
+                .attr('r', 30)
+                .attr('fill', '#26963c')
+                .attr('id', circleId) // say, this value was dynamically retrieved from some database
+
+            // make the client-side script manipulate the circle at client side)
+            /*var clientScript = "d3.select('#" + circleId + "').transition().delay(1000).attr('fill', '#f9af26')"
+
+            d3.select(body)
+                .append('script')
+                .html(clientScript)*/
+
+            // save result in an html file, we could also keep it in memory, or export the interesting fragment into a database for later use
+            /*var svgsrc = window.document.documentElement.innerHTML
+            fs.writeFile('index.html', svgsrc, function(err) {
+                if(err) {
+                    console.log('error saving document', err)
+                } else {
+                    console.log('The file was saved!')
+                }
+            })*/
+            res.render('graph', { content: el.innerHTML });
+        } // end jsDom done callback
+    })
+
+    //res.sendFile( __dirname + "/" + "index.html" );
 })
 
 app.get('/process_get', function (req, res) {
@@ -94,6 +138,7 @@ app.post('/start', function (req, res)
 // --------------
 // Communication with Java JADE
 // ------------
+/*
 var net = require('net');
 var HOST = '127.0.0.1'; // parameterize the IP of the Listen
 var PORT = 6969; // TCP LISTEN port
@@ -128,6 +173,6 @@ net.createServer(function(sock) {
 
 }).listen(PORT, HOST);
 
-console.log('Server listening on ' + HOST +':'+ PORT);
+console.log('Server listening on ' + HOST +':'+ PORT);*/
 
 
