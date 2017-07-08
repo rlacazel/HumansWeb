@@ -6,7 +6,12 @@ const util = require('util');
 var express = require('express');
 var app = express();
 var fortune = require('./lib/fortune.js');
+var listeners = [];
+var java_client;
 
+var bodyParser = require('body-parser');
+app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.json()); // this is used for parsing the JSON object from POST
 
 app.use(express.static('public'));
 
@@ -51,6 +56,7 @@ app.get('/ab*cd', function(req, res) {
 })
 
 
+// Ref: https://mango-is.com/blog/engineering/pre-render-d3-js-charts-at-server-side/
 app.get('/index.html', function (req, res) {
     var d3 = require('d3')
         , jsdom = require('jsdom')
@@ -102,6 +108,16 @@ app.get('/index.html', function (req, res) {
     //res.sendFile( __dirname + "/" + "index.html" );
 })
 
+// This responds a POST request for the homepage
+app.post('/action', function (req, res) {
+    console.log('body: ' + util.inspect(req.body.id, false, null));
+    var id = req.body.id.toString();
+    if (java_client != null) {
+        java_client.write('action:' + id + '\n');
+    }
+    res.end();
+})
+
 app.get('/process_get', function (req, res) {
     // Prepare output in JSON format
     response = {
@@ -136,10 +152,10 @@ app.post('/start', function (req, res)
 })
 
 // --------------
-// Communication with Java JADE
+// Server of Java JADE
 // ------------
-/*
 var net = require('net');
+
 var HOST = '127.0.0.1'; // parameterize the IP of the Listen
 var PORT = 6969; // TCP LISTEN port
 
@@ -148,19 +164,39 @@ net.createServer(function(sock) {
 
     // Receives a connection - a socket object is associated to the connection automatically
     console.log('CONNECTED: ' + sock.remoteAddress +':'+ sock.remotePort);
+    listeners.push(sock);
+
+    // Link client
+    //java_client = net.connect(1234, 'localhost');
+    java_client = net.connect({port: 1234}, function() {
+        console.log('connected to server!');
+    });
+
+    java_client.on('data', function(data) {
+        console.log('Received: ' + data);
+        // client.destroy(); // kill client after server's response
+    });
+
+    java_client.on('close', function() {
+        console.log('Connection closed');
+    });
+
+    java_client.on("error", function(exception) {
+        console.log("Client closed");
+        console.log(exception.stack);
+    });
 
     //just added
     sock.on("error", function(exception) {
         console.log("Client closed");
-        //console.log(exception.stack);
+        console.log(exception.stack);
     });
 
     // Add a 'data' - "event handler" in this socket instance
     sock.on('data', function(data) {
         console.log('DATA RECEIVE: ' + data);
-        // data was received in the socket
-        // Writes the received message back to the socket (echo)
-        sock.write(data);
+
+        // sock.write(data);
     });
 
 
@@ -173,6 +209,4 @@ net.createServer(function(sock) {
 
 }).listen(PORT, HOST);
 
-console.log('Server listening on ' + HOST +':'+ PORT);*/
-
-
+console.log('Server listening on ' + HOST +':'+ PORT);
