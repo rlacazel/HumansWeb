@@ -4,10 +4,14 @@
 const util = require('util');
 
 var express = require('express');
+var path = require('path');
+
 var app = express();
 var fortune = require('./lib/fortune.js');
 var listeners = [];
 var java_client;
+
+var io = require('socket.io').listen(app.listen(3700));
 
 var bodyParser = require('body-parser');
 app.use(bodyParser.urlencoded({ extended: false }));
@@ -20,16 +24,24 @@ var handlebars = require('express-handlebars').create({ defaultLayout:'main' });
 app.engine('handlebars', handlebars.engine);
 app.set('view engine', 'handlebars');
 
+io.sockets.on('connection', function (socket) {
+    // socket.emit('refresh_client', { message: 'welcome to the chat' });
+    /*socket.on('send', function (data) {
+        io.sockets.emit('refresh_client', data);
+    });*/
+});
+
 // This responds with "Hello World" on the homepage
 app.get('/', function (req, res) {
     console.log("Got a GET request for the homepage");
-    res.send('Hello GET');
+    //res.send('Hello GET');
+    res.sendFile('index.html', { root: __dirname });
 })
 
 // This responds a POST request for the homepage
 app.post('/', function (req, res) {
     console.log("Got a POST request for the homepage");
-    res.send('Hello POST');
+    //res.send('Hello POST');
 })
 
 app.get('/about', function(req, res){
@@ -55,9 +67,9 @@ app.get('/ab*cd', function(req, res) {
     res.send('Page Pattern Match');
 })
 
-
-// Ref: https://mango-is.com/blog/engineering/pre-render-d3-js-charts-at-server-side/
-app.get('/index.html', function (req, res) {
+/*function update_graph(callback)
+{
+    var res;
     var d3 = require('d3')
         , jsdom = require('jsdom')
         , fs = require('fs')
@@ -69,52 +81,44 @@ app.get('/index.html', function (req, res) {
         , done : function(errors, window) {
             // this callback function pre-renders the dataviz inside the html document, then export result into a static file
 
-            var el = window.document.querySelector('#dataviz-container')
-                //, body = window.document.querySelector('body')
-                , circleId = 'a2324'  // say, this value was dynamically retrieved from some database
+                var el = window.document.querySelector('#dataviz-container')
+                    //, body = window.document.querySelector('body')
+                    , circleId = 'a2324'  // say, this value was dynamically retrieved from some database
 
-            // generate the dataviz
-            d3.select(el)
-                .append('svg:svg')
-                .attr('width', 600)
-                .attr('height', 300)
-                .append('circle')
-                .attr('cx', 300)
-                .attr('cy', 150)
-                .attr('r', 30)
-                .attr('fill', '#26963c')
-                .attr('id', circleId) // say, this value was dynamically retrieved from some database
+                // generate the dataviz
+                d3.select(el)
+                    .append('svg:svg')
+                    .attr('width', 600)
+                    .attr('height', 300)
+                    .append('circle')
+                    .attr('cx', 300)
+                    .attr('cy', 150)
+                    .attr('r', 30)
+                    .attr('fill', '#26963c')
+                    .attr('id', circleId) // say, this value was dynamically retrieved from some database
 
-            // make the client-side script manipulate the circle at client side)
-            /*var clientScript = "d3.select('#" + circleId + "').transition().delay(1000).attr('fill', '#f9af26')"
-
-            d3.select(body)
-                .append('script')
-                .html(clientScript)*/
-
-            // save result in an html file, we could also keep it in memory, or export the interesting fragment into a database for later use
-            /*var svgsrc = window.document.documentElement.innerHTML
-            fs.writeFile('index.html', svgsrc, function(err) {
-                if(err) {
-                    console.log('error saving document', err)
-                } else {
-                    console.log('The file was saved!')
-                }
-            })*/
-            res.render('graph', { content: el.innerHTML });
-        } // end jsDom done callback
+            callback(el.innerHTML);
+        }
     })
+    //return res;
+}*/
 
-    //res.sendFile( __dirname + "/" + "index.html" );
+// Ref: https://mango-is.com/blog/engineering/pre-render-d3-js-charts-at-server-side/
+app.get('/index.html', function (req, res) {
+    //update_graph(function(html_graph) {res.render('graph', { content: html_graph })});
+    res.render('graph', { content: '' });
+
 })
 
 // This responds a POST request for the homepage
 app.post('/action', function (req, res) {
     console.log('body: ' + util.inspect(req.body.id, false, null));
+    io.sockets.emit('refresh_client', { data: 'this is the data'});
+    /*
     var id = req.body.id.toString();
     if (java_client != null) {
         java_client.write('action:' + id + '\n');
-    }
+    }*/
     res.end();
 })
 
