@@ -56,8 +56,14 @@ app.get('/index.html', function (req, res)
 
 // This responds a POST request for the homepage
 app.post('/action', function (req, res) {
-    console.log('body: ' + util.inspect(req.body.id, false, null));
-    io.sockets.emit('js_client', { data: 'action:triggered:PutBandageHemostaticOnP1'});
+    var id = req.body.id;
+    console.log('body: ' + id);
+    if(id == 'trigger') {
+        io.sockets.emit('js_client', {data: 'action:triggered:PutBandageHemostaticOnP1'});
+    }
+    else if(id == 'ack'){
+        io.sockets.emit('js_client', {data: 'action:ack_success:PutBandageHemostaticOnP1'});
+    }
     /*
     var id = req.body.id.toString();
     send_message_to_humans(id);

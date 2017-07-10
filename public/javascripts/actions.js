@@ -51,6 +51,22 @@ jQuery(function($){
             return v.sort(function(a,b){ return a.v - b.v;});
         }
 
+        tree.updateVerticeStatus =  function(lbl, newStatus){
+            function updateVertice(t){
+                if (t.l == lbl)
+                {
+                    t.status = newStatus;
+                }
+                else {
+                    t.c.forEach(function (d) {
+                        return updateVertice(d);
+                    });
+                }
+            }
+            updateVertice(tree.vis);
+            redraw();
+        }
+
         // get all edges of the forme {{v1:value1,l1:label1,p1:position1},{v2:value2,l2:label2,p2:position2}}
         tree.getEdges =  function(){
             var e =[];
@@ -101,7 +117,8 @@ jQuery(function($){
 
             var circles = d3.select("#g_circles").selectAll('ellipse').data(tree.getVertices());
 
-            circles.transition().duration(500).attr('cx',function(d){ return d.p.x;}).attr('cy',function(d){ return d.p.y;});
+            // Value whihc can change
+            circles.transition().duration(500).attr('cx',function(d){ return d.p.x;}).attr('cy',function(d){ return d.p.y;}).attr("stroke", "black").attr("fill", function(d){ return tree.getColorNode(d)});
 
             circles.enter().append('ellipse').attr('cx',function(d){ return d.f.p.x;}).attr('cy',function(d){ return d.f.p.y;}).attr('rx',xRadius).attr('ry',yRadius)
                 .attr("stroke", "black").attr("fill", function(d){ return tree.getColorNode(d)}).on('click',function(d){return tree.addLeaf(d.v);})
@@ -183,8 +200,8 @@ jQuery(function($){
             }
             else if (res[1] == 'ack_success')
             {
-                // Retrieve the specified node, change its status and redraw
-                // todo that: maintain an map of label to id or juste retrieve by label (need to be unique !)
+                tree.updateVerticeStatus(res[2], 'success');
+                // todo : need to be unique id!
             }
         }
     });
