@@ -2,22 +2,14 @@ body{
     width:960px;
     margin:10px auto;
 }
-circle{
+/*ellipse{
     fill:white;
     stroke:steelblue;
     stroke-width:2px;
-}
+}*/
 line{
     stroke:grey;
     stroke-width:3px;
-}
-.incRect{
-    stroke:grey;
-    shape-rendering:crispEdges;
-}
-#incMatx text{
-    text-anchor:middle;
-    cursor:default;
 }
 #treesvg g text:hover, #treesvg g circle:hover{
     cursor:pointer;
