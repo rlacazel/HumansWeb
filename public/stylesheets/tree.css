@@ -7,6 +7,12 @@ body{
     stroke:steelblue;
     stroke-width:2px;
 }*/
+div#tree {
+    height: 600px;
+    border: 1px solid #000;
+    /*border:1px solid #000;*/
+    overflow : auto;
+}
 line{
     stroke:grey;
     stroke-width:3px;
@@ -18,7 +24,7 @@ line{
     background:#555;
 }
 #treesvg{
-    border:1px solid grey;
+    /*border:1px solid grey;*/
 }
 #labelpos{
     color:white;
