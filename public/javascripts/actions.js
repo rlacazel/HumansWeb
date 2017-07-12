@@ -18,19 +18,30 @@ $("button").click(function(e) {
     });
 });
 
-});
-/*
-jQuery(function($){
-
-    var socket = io.connect('http://localhost:3700');
-    socket.on('refresh_client', function (msg) {
-        console.log(msg);
-        //$('#button_1').prop('name', 'Save');
-        //$("#button_1").load(location.href + " #button_1");
+$("input").click(function(e) {
+    e.preventDefault();
+    $.ajax({
+        type: "POST",
+        url: "/action",
+        data: {
+            id: $(this).attr('action'), // < note use of 'this' here
+            nurse: $('#nurse').val(),
+            action: $('#action').val(),
+            victim: $('#victim').val(),
+            nurse_take: $('#nurse_take').val(),
+            object_take: $('#object_take').val()
+        },
+        success: function(result) {
+            // alert('ok');
+        },
+        error: function(result) {
+            // alert('error');
+        }
     });
+});
 
 });
-*/
+
 jQuery(function($){
 
     function tree(){

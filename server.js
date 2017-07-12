@@ -57,12 +57,26 @@ app.get('/index.html', function (req, res)
 // This responds a POST request for the homepage
 app.post('/action', function (req, res) {
     var id = req.body.id;
-    console.log('body: ' + id);
     if(id == 'trigger') {
+        console.log('action:triggered:PutBandageHemostaticOnP1');
         io.sockets.emit('js_client', {data: 'action:triggered:PutBandageHemostaticOnP1'});
     }
-    else if(id == 'ack'){
+    else if(id == 'ack') {
+        console.log('action:ack_success:PutBandageHemostaticOnP1');
         io.sockets.emit('js_client', {data: 'action:ack_success:PutBandageHemostaticOnP1'});
+    }
+    else if (id == 'gotoandanimate') {
+        var nurse = req.body.nurse;
+        var action = req.body.action;
+        var victim = req.body.victim;
+        console.log('send: gotoandanimate:'+nurse+':'+action+':'+victim);
+        send_message_to_humans('gotoandanimate:'+nurse+':'+action+':'+victim);
+    }
+    else if (id == 'gotoandtake') {
+        var nurse = req.body.nurse_take;
+        var object = req.body.object_take;
+        console.log('send: gotoandtake:'+nurse+':'+object);
+        send_message_to_humans('gotoandtake:'+nurse+':'+object);
     }
     /*
     var id = req.body.id.toString();
@@ -131,9 +145,11 @@ net.createServer(function(sock) {
     sock.on('data', function(data) {
         console.log('| Receive from Humans: ' + data);
         var string = String.fromCharCode.apply(null,data);
-        // action:triggered:mocapID
-        // action:ack_success:mocapID
-        io.sockets.emit('js_client', { data: string});
+        if (string.startsWith("action:"))
+        {
+            io.sockets.emit('js_client', { data: string});
+        }
+        //java_client.write(string);
     });
 
     // Add a 'close' - "event handler" in this socket instance
@@ -149,7 +165,7 @@ function send_message_to_humans(msg)
 {
     if (java_client != null)
     {
-        java_client.write(msg);
+        java_client.write(msg+ '\n');
     }
 }
 

@@ -1,9 +1,42 @@
 <div style="width: 100%;">
-    <div id="tree" style="float:left; width: 80%">
+    <div id="tree" style="float:left; width: 70%">
         {{{content}}}
     </div>
     <div style="float:right;">
-        <button id="button_1" value="trigger" name="but1">trigger</button>
-        <button id="button_2" value="ack" name="but1">ack</button>
+        <div>
+            <button id="button_1" value="trigger" name="but1">trigger</button>
+            <button id="button_2" value="ack" name="but1">ack</button>
+        </div>
+
+        <div>
+            <form method="post">
+                <select id="nurse">
+                    <option value="nurse1">nurse1</option>
+                </select>
+                <select id="action">
+                    <option value="CheckHead">palpe tête</option>
+                    <option value="CheckLeg">palpe jambe</option>
+                    <option value="CheckChest">palpe chest</option>
+                    <option value="CutClothLeg">coupe habit jambe</option>
+                </select>
+                <select id="victim">
+                    <option value="victim1">victime1</option>
+                </select>
+                <input action="gotoandanimate" type="submit" value="execute">
+            </form>
+        </div>
+
+        <div>
+            <form method="post">
+                <select id="nurse_take">
+                    <option value="nurse1">nurse1</option>
+                </select>
+                prend
+                <select id="object_take">
+                    <option value="tourniquet_pneumatic1">tourniquet pneumatique 1</option>
+                </select>
+                <input action="gotoandtake" type="submit" value="execute">
+            </form>
+        </div>
     </div>
 </div>
