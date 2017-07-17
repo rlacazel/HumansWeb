@@ -68,15 +68,22 @@ app.post('/action', function (req, res) {
     else if (id == 'gotoandanimate') {
         var nurse = req.body.nurse;
         var action = req.body.action;
+        var part= req.body.part;
         var victim = req.body.victim;
-        console.log('send: gotoandanimate:'+nurse+':'+action+':'+victim);
-        send_message_to_humans('gotoandanimate:'+nurse+':'+action+':'+victim);
+        console.log('send: gotoandanimate:'+nurse+':'+action+part+':'+victim);
+        send_message_to_humans('gotoandanimate:'+nurse+':'+action+part+':'+victim);
     }
     else if (id == 'gotoandtake') {
         var nurse = req.body.nurse_take;
         var object = req.body.object_take;
         console.log('send: gotoandtake:'+nurse+':'+object);
         send_message_to_humans('gotoandtake:'+nurse+':'+object);
+    }
+    else if (id == 'openclose') {
+        var object = req.body.object_case;
+        var action = req.body.open_close_action;
+        console.log('send: openclose:'+action+':'+object);
+        send_message_to_humans('openclose:'+action+':'+object);
     }
     /*
     var id = req.body.id.toString();

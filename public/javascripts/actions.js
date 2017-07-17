@@ -1,5 +1,40 @@
 jQuery(function($){
 
+var data = [ // The data
+    ['check', [
+        'head','leg','chest'
+    ]],
+    ['cut', [
+        'rleg', 'lleg', 'chest'
+    ]]
+];
+
+$a = $('#action'); // The dropdowns
+$b = $('#part');
+
+for(var i = 0; i < data.length; i++) {
+    var first = data[i][0];
+    $a.append($("<option>"). // Add options
+    attr("value",first).
+    data("sel", i).
+    text(first));
+}
+
+$a.change(function() {
+    var index = $(this).children('option:selected').data('sel');
+    var second = data[index][1]; // The second-choice data
+
+    $b.html(''); // Clear existing options in second dropdown
+
+    for(var j = 0; j < second.length; j++) {
+        $b.append($("<option>"). // Add options
+        attr("value",second[j]).
+        data("sel", j).
+        text(second[j]));
+    }
+}).change(); // Trigger once to add options at load of first choice
+
+
 $("button").click(function(e) {
     e.preventDefault();
     $.ajax({
@@ -27,9 +62,12 @@ $("input").click(function(e) {
             id: $(this).attr('action'), // < note use of 'this' here
             nurse: $('#nurse').val(),
             action: $('#action').val(),
+            part: $('#part').val(),
             victim: $('#victim').val(),
             nurse_take: $('#nurse_take').val(),
-            object_take: $('#object_take').val()
+            object_take: $('#object_take').val(),
+            object_case: $('#object_case').val(),
+            open_close_action: $('#open_close_action').val()
         },
         success: function(result) {
             // alert('ok');

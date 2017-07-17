@@ -14,13 +14,11 @@
                     <option value="nurse1">nurse1</option>
                 </select>
                 <select id="action">
-                    <option value="CheckHead">palpe tête</option>
-                    <option value="CheckLeg">palpe jambe</option>
-                    <option value="CheckChest">palpe chest</option>
-                    <option value="CutClothLeg">coupe habit jambe</option>
+                </select>
+                <select id="part">
                 </select>
                 <select id="victim">
-                    <option value="victim1">victime1</option>
+                    <option value="patient1">patient1</option>
                 </select>
                 <input action="gotoandanimate" type="submit" value="execute">
             </form>
@@ -36,6 +34,20 @@
                     <option value="tourniquet_pneumatic1">tourniquet pneumatique 1</option>
                 </select>
                 <input action="gotoandtake" type="submit" value="execute">
+            </form>
+        </div>
+
+        <div>
+            <form method="post">
+                <select id="open_close_action">
+                    <option value="open">open</option>
+                    <option value="close">close</option>
+                </select>
+                <select id="object_case">
+                    <option value="box1_case1">box1 case1</option>
+                    <option value="box1_case2">box1 case2</option>
+                </select>
+                <input action="openclose" type="submit" value="execute">
             </form>
         </div>
     </div>
