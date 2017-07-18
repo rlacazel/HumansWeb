@@ -1,11 +1,15 @@
 <div style="width: 100%;">
-    <div id="tree" style="float:left; width: 70%">
+    <div id="tree" style="float:left; width: 65%">
         {{{content}}}
     </div>
     <div style="float:right;">
         <div>
             <button id="button_1" value="trigger" name="but1">trigger</button>
             <button id="button_2" value="ack" name="but1">ack</button>
+        </div>
+
+        <div>
+            Actions:
         </div>
 
         <div>
@@ -38,16 +42,18 @@
         </div>
 
         <div>
+            Attributes:
+        </div>
+
+        <div>
             <form method="post">
-                <select id="open_close_action">
-                    <option value="open">open</option>
-                    <option value="close">close</option>
+                <select id="attr">
                 </select>
-                <select id="object_case">
-                    <option value="box1_case1">box1 case1</option>
-                    <option value="box1_case2">box1 case2</option>
+                <select id="attr_value">
                 </select>
-                <input action="openclose" type="submit" value="execute">
+                <select id="attr_object">
+                </select>
+                <input action="attribute" type="submit" value="execute">
             </form>
         </div>
     </div>

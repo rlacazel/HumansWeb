@@ -1,13 +1,20 @@
 jQuery(function($){
 
+// ------------------------
+// ---- GotoAndAnimate -----
+// ------------------------
 var data = [ // The data
     ['check', [
         'head','leg','chest'
     ]],
     ['cut', [
         'rleg', 'lleg', 'chest'
+    ]],
+    ['apply', [
+        'LUpperLegMiddle','RUpperLegMiddle','RUpperLegTop','LUpperLegTop'
     ]]
 ];
+
 
 $a = $('#action'); // The dropdowns
 $b = $('#part');
@@ -34,7 +41,78 @@ $a.change(function() {
     }
 }).change(); // Trigger once to add options at load of first choice
 
+// ------------------------
+// ---- Attribute -----
+// ------------------------
+var attribute_data = [ // The data
+    [
+        ['blood left leg:is-bloodstain-left-leg','blood left arm:is-bloodstain-left-arm','blood left chest:is-bloodstain-left-chest',
+            'blood right leg:is-bloodstain-right-leg','blood right arm:is-bloodstain-right-arm','blood right chest:is-bloodstain-right-chest',
+        'grumble:is-grumbling','breath:is-breathing'],
+        ['0','0.5','1'],
+        ['patient1']
+    ],
+    [
+        ['wound:is-wounded'],
+        ['1','2','3','1;2','2;3','1;3','1;2;3'],
+        ['patient1']
+    ],
+    [
+        ['open:is-open'],
+        ['true','false'],
+        ['box1_case1','box1_case2']
+    ],
+    [
+        ['blood hand:has-blooded-hands'],
+        ['true','false'],
+        ['nurse1']
+    ]
+];
 
+
+$at = $('#attr'); // The dropdowns
+$va = $('#attr_value');
+$ob = $('#attr_object');
+
+for(var i = 0; i < attribute_data.length; i++) {
+    var first = attribute_data[i][0];
+    for(var j = 0; j < first.length; j++)
+    {
+        var splitted_data = first[j].split(':');
+        $at.append($("<option>").// Add options
+        attr("value", splitted_data[1]).data("sel", i).text(splitted_data[0]));
+    }
+}
+
+$at.change(function() {
+    var index = $(this).children('option:selected').data('sel');
+    var second = attribute_data[index][1]; // The second-choice data
+
+    $va.html(''); // Clear existing options in second dropdown
+
+    for(var j = 0; j < second.length; j++) {
+        $va.append($("<option>"). // Add options
+        attr("value",second[j]).
+        data("sel", j).
+        text(second[j]));
+    }
+
+    var third = attribute_data[index][2]; // The second-choice data
+
+    $ob.html(''); // Clear existing options in second dropdown
+
+    for(var j = 0; j < third.length; j++) {
+        $ob.append($("<option>"). // Add options
+        attr("value",third[j]).
+        data("sel", j).
+        text(third[j]));
+    }
+}).change(); // Trigger once to add options at load of first choice
+
+
+// ------------------------
+// ---- Buttons -----
+// ------------------------
 $("button").click(function(e) {
     e.preventDefault();
     $.ajax({
@@ -66,8 +144,9 @@ $("input").click(function(e) {
             victim: $('#victim').val(),
             nurse_take: $('#nurse_take').val(),
             object_take: $('#object_take').val(),
-            object_case: $('#object_case').val(),
-            open_close_action: $('#open_close_action').val()
+            attr: $('#attr').val(),
+            attr_value: $('#attr_value').val(),
+            attr_object: $('#attr_object').val()
         },
         success: function(result) {
             // alert('ok');

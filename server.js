@@ -70,8 +70,8 @@ app.post('/action', function (req, res) {
         var action = req.body.action;
         var part= req.body.part;
         var victim = req.body.victim;
-        console.log('send: gotoandanimate:'+nurse+':'+action+part+':'+victim);
-        send_message_to_humans('gotoandanimate:'+nurse+':'+action+part+':'+victim);
+        console.log('send: gotoandanimate:'+nurse+':'+action+':'+part+':'+victim);
+        send_message_to_humans('gotoandanimate:'+nurse+':'+action+':'+part+':'+victim);
     }
     else if (id == 'gotoandtake') {
         var nurse = req.body.nurse_take;
@@ -79,11 +79,12 @@ app.post('/action', function (req, res) {
         console.log('send: gotoandtake:'+nurse+':'+object);
         send_message_to_humans('gotoandtake:'+nurse+':'+object);
     }
-    else if (id == 'openclose') {
-        var object = req.body.object_case;
-        var action = req.body.open_close_action;
-        console.log('send: openclose:'+action+':'+object);
-        send_message_to_humans('openclose:'+action+':'+object);
+    else if (id == 'attribute') {
+        var attr = req.body.attr;
+        var value = req.body.attr_value;
+        var object = req.body.attr_object;
+        console.log('send: attribute:'+attr+':'+value+':'+object);
+        send_message_to_humans('attribute:'+attr+':'+value+':'+object);
     }
     /*
     var id = req.body.id.toString();
