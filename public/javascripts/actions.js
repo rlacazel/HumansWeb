@@ -4,22 +4,22 @@ var attribute_data = [ // The data
             'blood right leg:is-bloodstain-right-leg','blood right arm:is-bloodstain-right-arm','blood right chest:is-bloodstain-right-chest',
             'grumble:is-grumbling','breath:is-breathing'],
         ['0','0.5','1'],
-        ['patient1']
+        ['Patient']
     ],
     [
         ['wound:is-wounded'],
         ['1','2','3','1;2','2;3','1;3','1;2;3'],
-        ['patient1']
+        ['Patient']
     ],
     [
         ['open:is-open'],
         ['true','false'],
-        ['box1_case1','box1_case2']
+        ['Case']
     ],
     [
         ['blood hand:has-blooded-hands'],
         ['true','false'],
-        ['nurse1']
+        ['Nurse']
     ]
 ];
 
@@ -371,7 +371,19 @@ jQuery(function($){
             });
 
             // Update data with instances
-            attribute_data[0][2] = ['plop'];
+            for (i = 0; i < attribute_data.length; i++)
+            {
+                var list_type = attribute_data[i][2];
+                attribute_data[i][2] = [];
+                for (j = 0; j < list_type.length; j++)
+                {
+                    var uris = dict[list_type[j]];
+                    for (k = 0; k < uris.length; k++)
+                    {
+                        attribute_data[i][2].push(uris[k]);
+                    }
+                }
+            }
 
             // Trigger a change to refresh
             $at = $('#attr'); // The dropdowns
