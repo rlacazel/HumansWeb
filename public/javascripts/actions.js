@@ -1,3 +1,28 @@
+var attribute_data = [ // The data
+    [
+        ['blood left leg:is-bloodstain-left-leg','blood left arm:is-bloodstain-left-arm','blood left chest:is-bloodstain-left-chest',
+            'blood right leg:is-bloodstain-right-leg','blood right arm:is-bloodstain-right-arm','blood right chest:is-bloodstain-right-chest',
+            'grumble:is-grumbling','breath:is-breathing'],
+        ['0','0.5','1'],
+        ['patient1']
+    ],
+    [
+        ['wound:is-wounded'],
+        ['1','2','3','1;2','2;3','1;3','1;2;3'],
+        ['patient1']
+    ],
+    [
+        ['open:is-open'],
+        ['true','false'],
+        ['box1_case1','box1_case2']
+    ],
+    [
+        ['blood hand:has-blooded-hands'],
+        ['true','false'],
+        ['nurse1']
+    ]
+];
+
 jQuery(function($){
 
 // ------------------------
@@ -44,30 +69,7 @@ $a.change(function() {
 // ------------------------
 // ---- Attribute -----
 // ------------------------
-var attribute_data = [ // The data
-    [
-        ['blood left leg:is-bloodstain-left-leg','blood left arm:is-bloodstain-left-arm','blood left chest:is-bloodstain-left-chest',
-            'blood right leg:is-bloodstain-right-leg','blood right arm:is-bloodstain-right-arm','blood right chest:is-bloodstain-right-chest',
-        'grumble:is-grumbling','breath:is-breathing'],
-        ['0','0.5','1'],
-        ['patient1']
-    ],
-    [
-        ['wound:is-wounded'],
-        ['1','2','3','1;2','2;3','1;3','1;2;3'],
-        ['patient1']
-    ],
-    [
-        ['open:is-open'],
-        ['true','false'],
-        ['box1_case1','box1_case2']
-    ],
-    [
-        ['blood hand:has-blooded-hands'],
-        ['true','false'],
-        ['nurse1']
-    ]
-];
+
 
 
 $at = $('#attr'); // The dropdowns
@@ -91,7 +93,7 @@ $at.change(function() {
     $va.html(''); // Clear existing options in second dropdown
 
     for(var j = 0; j < second.length; j++) {
-        $va.append($("<option>"). // Add options
+        $va.append($("<option>").
         attr("value",second[j]).
         data("sel", j).
         text(second[j]));
@@ -103,6 +105,7 @@ $at.change(function() {
 
     for(var j = 0; j < third.length; j++) {
         $ob.append($("<option>"). // Add options
+        // attr("id","uri").
         attr("value",third[j]).
         data("sel", j).
         text(third[j]));
@@ -141,9 +144,9 @@ $("input").click(function(e) {
             nurse: $('#nurse').val(),
             action: $('#action').val(),
             part: $('#part').val(),
-            victim: $('#victim').val(),
+            victim: $('#uri_victim').val(),
             nurse_take: $('#nurse_take').val(),
-            object_take: $('#object_take').val(),
+            object_take: $('#uri_object_take').val(),
             attr: $('#attr').val(),
             attr_value: $('#attr_value').val(),
             attr_object: $('#attr_object').val()
@@ -324,6 +327,7 @@ jQuery(function($){
     socket.on('js_client', function (msg) {
         console.log(msg);
         var res = msg.data.toString().split(':');
+        // Receive ack of the form : action:<triggered,ack_success>:mocapid
         if(res.length == 3 && res[0]=='action')
         {
             if (res[1] == 'triggered')
@@ -336,6 +340,42 @@ jQuery(function($){
                 tree.updateVerticeStatus(res[2], 'success');
                 // todo : need to be unique id!
             }
+        }
+        // receive instances
+        else if (res[0]=='uritype')
+        {
+            var core_msg = msg.data.toString().replace("uritype:","").trim();
+            var pair_uri_type = core_msg.split('@');
+            var dict = {};
+            for (i = 0; i < pair_uri_type.length; i++)
+            {
+                var ury_type = pair_uri_type[i].split(':');
+                if(!(ury_type[1] in dict))
+                {
+                    dict[ury_type[1]] = [];
+                }
+                dict[ury_type[1]].push(ury_type[0]);
+            }
+            $("option[id='uri']").each(function (i, el) {
+                var values = $(this).attr("value");
+                var value_splitted = values.split(":");
+                var select = $(this).parent();
+                select.html('');
+                for (i = 0; i < value_splitted.length; i++) {
+                    var uris = dict[value_splitted[i]];
+                    for (j = 0; j < uris.length; j++) {
+                        select.append($("<option></option>")
+                            .attr("value", uris[j]).data("sel", 0).text(uris[j]));
+                    }
+                }
+            });
+
+            // Update data with instances
+            attribute_data[0][2] = ['plop'];
+
+            // Trigger a change to refresh
+            $at = $('#attr'); // The dropdowns
+            $at.change();
         }
     });
 

@@ -30,6 +30,7 @@ app.set('view engine', 'handlebars');
 
 io.sockets.on('connection', function (socket) {
     console.log('Connection from web page');
+    send_message_to_humans('askuritype');
 });
 
 
@@ -153,7 +154,7 @@ net.createServer(function(sock) {
     sock.on('data', function(data) {
         console.log('| Receive from Humans: ' + data);
         var string = String.fromCharCode.apply(null,data);
-        if (string.startsWith("action:"))
+        if (string.startsWith("action:") || string.startsWith("uritype:"))
         {
             io.sockets.emit('js_client', { data: string});
         }
