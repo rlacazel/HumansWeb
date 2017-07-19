@@ -134,13 +134,13 @@ $("button").click(function(e) {
     });
 });
 
-$("input").click(function(e) {
+$("button").click(function(e) {
     e.preventDefault();
     $.ajax({
         type: "POST",
         url: "/action",
         data: {
-            id: $(this).attr('action'), // < note use of 'this' here
+            id: $(this).attr('name'), // < note use of 'this' here
             nurse: $('#nurse').val(),
             action: $('#action').val(),
             part: $('#part').val(),

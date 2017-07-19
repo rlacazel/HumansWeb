@@ -1,8 +1,22 @@
-body {
-  padding: 50px;
-  font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
+div#command {
+  height: 700px;
+  width: 400px;
+  border: 1px solid #000;
+  overflow : auto;
 }
 
-a {
-  color: #00B7FF;
+div#tree {
+  height: 700px;
+  border: 1px solid #000;
+  /*border:1px solid #000;*/
+  overflow : auto;
+}
+
+div#header {
+  color: #ffffff;
+  font-size: 140%;
+  height:25px;
+  text-align: center;
+  vertical-align: middle;
+  background-color: #8c60ff;
 }
