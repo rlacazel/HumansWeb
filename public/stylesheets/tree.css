@@ -1,5 +1,5 @@
 body{
-    width:1200px;
+    width:1400px;
     margin:10px auto;
 }
 /*ellipse{
@@ -16,9 +16,6 @@ line{
 }
 #navdiv{
     background:#555;
-}
-#treesvg{
-    /*border:1px solid grey;*/
 }
 #labelpos{
     color:white;

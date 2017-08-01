@@ -1,95 +1,107 @@
-<div style="width:1200px;height:720px;">
-    <div id="header" style="width:780px;float:left;border: 1px solid #000;">
-        Storyline
-    </div>
-    <div id="header" style="width:400px;float:right;border: 1px solid #000;">
-        Commandes
+<div style="height:720px;">
+    <div style="width:30%;margin-right:2%;float:left;">
+        <div id="header" style="border: 1px solid #000;">
+            Plan
+        </div>
+        <div id="treeplan">
+
+        </div>
     </div>
 
-    <div id="tree" style="float:left; width: 65%">
-        {{{content}}}
-    </div>
-    <div id="command" style="float:right;">
-        <!--<div>
-            <button id="button_1" value="trigger" name="but1">trigger</button>
-            <button id="button_2" value="ack" name="but1">ack</button>
-        </div>-->
 
-        <p style="text-align: center;">
-            Actions
-        </p>
-
-        <div>
-            <form method="post" class="form">
-                <div class="row auto">
-                    <div class="col">
-                        <select id="nurse" class="small">
-                            <option id="uri" value="Nurse">Nurse</option>
-                        </select>
-                    </div>
-                    <div class="col">
-                        <select id="action" class="small"></select>
-                    </div>
-                    <div class="col">
-                        <select id="part" class="small"></select>
-                    </div>
-                    <div class="col">
-                        <button name="gotoandanimate" type="submit" class="button upper outline small">Execute</button>
-                    </div>
-                </div>
-            </form>
+    <div style="width:38%;margin-right:2%;float:left;">
+        <div id="header" style="border: 1px solid #000;">
+            Storyline
         </div>
 
-        <div>
-            <form method="post" class="form">
-                <div class="row auto">
-                    <div class="col">
-                        <select id="nurse_take" class="small">
-                            <option id="uri" value="Nurse">Nurse</option>
-                        </select>
-                    </div>
-                    <div class="col">
-                        <p style="text-align: center;margin-top: 0.15cm;font-size: 120%;">
-                        take
-                        </p>
-                    </div>
-                    <div class="col">
-                        <select id="uri_object_take" class="small">
-                            <option id="uri" value="Tourniquet_Pneumatic:Tourniquet_Normal:Bandage_Hemostatic">Object</option>
-                        </select>
-                    </div>
-                    <div class="col">
-                        <button name="gotoandtake" type="submit" class="button upper outline small">Execute</button>
-                    </div>
-                </div>
-            </form>
+        <div id="tree">
+            {{{content}}}
+        </div>
+    </div>
+
+
+    <div style="width:28%;float:right;">
+        <div id="header" style="border: 1px solid #000;">
+            Commandes
         </div>
 
-        <p style="text-align: center;">
-            Attributes
-        </p>
+        <div id="command">
 
-        <div>
-            <form method="post" class="form">
-                <div class="row auto">
-                    <div class="col">
-                        <select id="attr" class="small">
-                        </select>
+            <p style="text-align: center;">
+                Actions
+            </p>
+
+            <div>
+                <form method="post" class="form">
+                    <div class="row auto">
+                        <div class="col">
+                            <select id="nurse" class="small">
+                                <option id="uri" value="Nurse">Nurse</option>
+                            </select>
+                        </div>
+                        <div class="col">
+                            <select id="action" class="small"></select>
+                        </div>
+                        <div class="col">
+                            <select id="part" class="small"></select>
+                        </div>
+                        <div class="col">
+                            <button name="gotoandanimate" type="submit" class="button upper outline small">Execute</button>
+                        </div>
                     </div>
-                    <div class="col">
-                        <select id="attr_value" class="small">
-                        </select>
+                </form>
+            </div>
+
+            <div>
+                <form method="post" class="form">
+                    <div class="row auto">
+                        <div class="col">
+                            <select id="nurse_take" class="small">
+                                <option id="uri" value="Nurse">Nurse</option>
+                            </select>
+                        </div>
+                        <div class="col">
+                            <p style="text-align: center;margin-top: 0.15cm;font-size: 120%;">
+                            take
+                            </p>
+                        </div>
+                        <div class="col">
+                            <select id="uri_object_take" class="small">
+                                <option id="uri" value="Tourniquet_Pneumatic:Tourniquet_Normal:Bandage_Hemostatic">Object</option>
+                            </select>
+                        </div>
+                        <div class="col">
+                            <button name="gotoandtake" type="submit" class="button upper outline small">Execute</button>
+                        </div>
                     </div>
-                    <div class="col">
-                        <select id="attr_object" class="small">
-                        </select>
+                </form>
+            </div>
+
+            <p style="text-align: center;">
+                Attributes
+            </p>
+
+            <div>
+                <form method="post" class="form">
+                    <div class="row auto">
+                        <div class="col">
+                            <select id="attr" class="small">
+                            </select>
+                        </div>
+                        <div class="col">
+                            <select id="attr_value" class="small">
+                            </select>
+                        </div>
+                        <div class="col">
+                            <select id="attr_object" class="small">
+                            </select>
+                        </div>
+                        <div class="col">
+                            <button name="attribute" type="submit" class="button upper outline small">Execute</button>
+                        </div>
                     </div>
-                    <div class="col">
-                        <button name="attribute" type="submit" class="button upper outline small">Execute</button>
-                    </div>
-                </div>
-            </form>
+                </form>
+            </div>
         </div>
-
     </div>
 </div>

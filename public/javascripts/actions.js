@@ -164,8 +164,9 @@ $("button").click(function(e) {
 
 jQuery(function($){
 
-    function tree(){
-        var svgW=958, svgH = 580, xRadius=150, yRadius=25, tree={cx:375, cy:30, w:175, h:70};
+    function tree(div){
+        var w = $(div).width();
+        var svgH = 580, xRadius=130, yRadius=28, tree={cx:w/2, cy:30, w:175, h:70};
         // v: value node / l: label_node / P: position / c: child / status: none, ongoing, success, fail
         tree.vis={v:0, l:'Start', p:{x:tree.cx, y:tree.cy},c:[],status:'none'};
         tree.size=1;
@@ -221,6 +222,16 @@ jQuery(function($){
             redraw();
         }
 
+       /* tree.addLeaf = function(parent,id,lbl,st){
+            function addLeaf(t){
+                if(t.v==parent){ t.c.push({v:id, l:lbl, p:{},c:[],status:st}); return; }
+                t.c.forEach(function(parent){return addLeaf(parent);} );
+            }
+            addLeaf(tree.vis);
+            reposition(tree.vis);
+            redraw();
+        }*/
+
         tree.getColorNode = function(node)
         {
             if (node.status=='none' || node.status=='ongoing')
@@ -258,13 +269,43 @@ jQuery(function($){
 
             var labels = d3.select("#g_labels").selectAll('text').data(tree.getVertices());
 
-            labels.text(function(d){return d.l;}).transition().duration(500)
-                .attr('x',function(d){ return d.p.x;}).attr('y',function(d){ return d.p.y+5;}).attr('font-size',12);
+            labels.enter().append("text")
+                .each(function (d) {
+                    var newstringreplaced = d.l.replace(/\(/gi, "@(");
+                    var arr = newstringreplaced.split("@");
+                    for (i = 0; i < arr.length; i++) {
+                        d3.select(this)
+                            .attr('x',d.f.p.x)
+                            .attr('y',d.f.p.y+tree.h).attr('font-size',11)
+                            .append("tspan").attr('x',function(d){ return d.f.p.x;}).attr('y',d.f.p.y-2)
+                            .text(arr[i])
+                            .attr("dy", i ? "1.2em" : 0)
+                            .attr("text-anchor", "middle")
+                    }
+                });
 
-            labels.enter().append('text').attr('x',function(d){ return d.f.p.x;}).attr('y',function(d){ return d.f.p.y+5;}).attr('font-size',12)
+            // already existing label
+            labels.each(function (d) {
+                        d3.select(this).transition().duration(500)
+                            .attr('x', d.p.x).attr('y', d.p.y+5).attr('font-size', 11)
+                            .selectAll("tspan").attr('x', d.p.x).attr('y', d.p.y-2);
+                });
+
+            /*labels.each(function (d) {
+                    var newstringreplaced = d.l.replace(/\(/gi, "@(");
+                    var arr = newstringreplaced.split("@");
+                        d3.select(this).selectAll('tspan').each(function (d)
+                        {
+                            d3.select(this).transition().duration(500).text(arr[i]).attr('x', d.p.x).attr('y', d.p.y + 5).attr('font-size', 12);
+                        }).transition().duration(500)
+                });*/
+
+            /*labels.enter().append('text').attr('x',function(d){ return d.f.p.x;}).attr('y',function(d){ return d.f.p.y+5;}).attr('font-size',12)
                 .text(function(d){return d.l;}).on('click',function(d){return tree.addLeaf(d.v);})
                 .transition().duration(500)
-                .attr('x',function(d){ return d.p.x;}).attr('y',function(d){ return d.p.y+5;});
+                .attr('x',function(d){ return d.p.x;}).attr('y',function(d){ return d.p.y+5;});*/
+
+
 
             var elabels = d3.select("#g_elabels").selectAll('text').data(tree.getEdges());
 
@@ -296,8 +337,8 @@ jQuery(function($){
             });
         }
 
-        initialize = function(){
-            d3.select("#tree").append("svg").attr("width", "100%").attr("height", svgH).attr('id','treesvg');
+        initialize = function(div){
+            d3.select(div).append("svg").attr("width", "100%").attr("height", svgH).attr('id','treesvg');
 
             d3.select("#treesvg").append('g').attr('id','g_lines').selectAll('line').data(tree.getEdges()).enter().append('line')
                 .attr('x1',function(d){ return d.p1.x;}).attr('y1',function(d){ return d.p1.y;})
@@ -315,13 +356,46 @@ jQuery(function($){
                 .attr('x',function(d){ return (d.p1.x+d.p2.x)/2+(d.p1.x < d.p2.x? 8: -8);}).attr('y',function(d){ return (d.p1.y+d.p2.y)/2;}).attr('font-size',12)
                 .text(function(d){return tree.glabels.length==0? '': Math.abs(d.l1 -d.l2);});
         }
-        initialize();
+        initialize(div);
 
         return tree;
     }
-    var tree= tree();
 
+    function build_plan(tree, structure, lbl)
+    {
+        var stack = [0];
+        var node=0;
+        var lbl_dict = {};
+        var split = structure.split(/(?=[\[,])/);
+        var split_lbl = lbl.split("@");
+        var split_len_lbl = split_lbl.length;
+        for (var i = 0; i < split_len_lbl; i++)
+        {
+            var id_lbl = split_lbl[i].split(":");
+            lbl_dict[id_lbl[0]] = id_lbl[1];
+        }
+        var split_len = split.length;
+        for (var i = 0; i < split_len; i++)
+        {
+            if(split[i].startsWith(","))
+            {
+                stack.pop();
+            }
+            var nbclosingbracket = split[i].split("]").length-1;
+            var value = parseInt(split[i].replace("[","").replace("]","").replace(",",""));
+            tree.addLeaf(stack[stack.length-1],lbl_dict[value],'ongoing');
+            stack.push(++node);
+            for(var j = 0, len = nbclosingbracket; j < len; j++)
+            {
+                stack.pop();
+            }
+        }
+    }
+
+    var storyline= tree("#tree");
+    var treeplan= tree("#treeplan");
     var node = 0;
+    build_plan(treeplan,"[0[2[3]],1[4]]", "0:CommitStateInjury(i2,unknown,good)@1:Take(n2,g2)@2:VictNotBreathing(i2,good,v2)@3:VictDie(i2,good,v2)@4:Apply(n2,g2,v1,i1)");
 
     var socket = io.connect('http://localhost:3700');
     socket.on('js_client', function (msg) {
@@ -332,12 +406,12 @@ jQuery(function($){
         {
             if (res[1] == 'triggered')
             {
-                tree.addLeaf(node,res[2],'ongoing');
+                storyline.addLeaf(node,res[2],'ongoing');
                 node++;
             }
             else if (res[1] == 'ack_success')
             {
-                tree.updateVerticeStatus(res[2], 'success');
+                storyline.updateVerticeStatus(res[2], 'success');
                 // todo : need to be unique id!
             }
         }
