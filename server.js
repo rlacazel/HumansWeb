@@ -6,13 +6,14 @@
 //==============================
 const util = require('util');
 var path = require('path');
+var converter = require('./converter');
 
 // Express
 var express = require('express');
 var app = express();
 app.use(express.static('public'));
 
-var listeners = [];
+var storyline = [];
 var java_client;
 
 // IO
@@ -28,9 +29,19 @@ var handlebars = require('express-handlebars').create({ defaultLayout:'main' });
 app.engine('handlebars', handlebars.engine);
 app.set('view engine', 'handlebars');
 
-io.sockets.on('connection', function (socket) {
+io.sockets.on('connection', function (socket)
+{
     console.log('Connection from web page');
-    send_message_to_humans('askuritype');
+    if (java_client == null) {
+        io.sockets.emit('js_client', {data: 'error:Virtual Environement not running !'});
+    }
+    else {
+        send_message_to_humans('askuritype');
+    }
+    for(i = 0; i < storyline.length; i++)
+    {
+        socket.emit('js_client', {data: storyline[i]});
+    }
 });
 
 
@@ -54,10 +65,10 @@ app.get('/index.html', function (req, res)
     res.render('graph', { content: '' });
 })
 
-// This responds a POST request for the homepage
+// Receive command to execute in VE
 app.post('/action', function (req, res) {
     var id = req.body.id;
-    if(id == 'trigger') {
+    /*if(id == 'trigger') {
         console.log('action:triggered:PutBandageHemostaticOnP1');
         io.sockets.emit('js_client', {data: 'action:triggered:PutBandageHemostaticOnP1'});
     }
@@ -65,18 +76,25 @@ app.post('/action', function (req, res) {
         console.log('action:ack_success:PutBandageHemostaticOnP1');
         io.sockets.emit('js_client', {data: 'action:ack_success:PutBandageHemostaticOnP1'});
     }
-    else if (id == 'gotoandanimate') {
+    else */
+    if (id == 'gotoandanimate') {
         var nurse = req.body.nurse;
         var action = req.body.action;
         var part= req.body.part;
         var victim = req.body.victim;
         console.log('send: gotoandanimate:'+nurse+':'+action+':'+part+':'+victim);
+        var txt = 'action:GotoAndAnimate('+nurse+', '+action+', '+part+', '+victim+')';
+        storyline.push(txt)
+        io.sockets.emit('js_client', {data: txt});
         send_message_to_humans('gotoandanimate:'+nurse+':'+action+':'+part+':'+victim);
     }
     else if (id == 'gotoandtake') {
         var nurse = req.body.nurse_take;
         var object = req.body.object_take;
         console.log('send: gotoandtake:'+nurse+':'+object);
+        var txt = 'action:GotoAndTake('+nurse+', '+object+')';
+        storyline.push(txt);
+        io.sockets.emit('js_client', {data: txt});
         send_message_to_humans('gotoandtake:'+nurse+':'+object);
     }
     else if (id == 'attribute') {
@@ -84,12 +102,14 @@ app.post('/action', function (req, res) {
         var value = req.body.attr_value;
         var object = req.body.attr_object;
         console.log('send: attribute:'+attr+':'+value+':'+object);
+        var txt = 'action:Attribute('+attr+', '+value+', '+object+')';
+        storyline.push(txt);
+        io.sockets.emit('js_client', {data: txt});
         send_message_to_humans('attribute:'+attr+':'+value+':'+object);
     }
-    /*
-    var id = req.body.id.toString();
-    send_message_to_humans(id);
-    */
+    else if (id == 'start') {
+        io.sockets.emit('js_client', {data: 'trigger:Start'});
+    }
     res.end();
 })
 
@@ -123,7 +143,6 @@ net.createServer(function(sock) {
 
     // Receives a connection - a socket object is associated to the connection automatically
     console.log('CONNECTED: ' + sock.remoteAddress +':'+ sock.remotePort);
-    listeners.push(sock);
 
     // Link client
     java_client = net.connect({port: 1234}, function() {
@@ -137,11 +156,15 @@ net.createServer(function(sock) {
 
     java_client.on('close', function() {
         console.log('Connection closed');
+        io.sockets.emit('js_client', {data: 'error:Virtual Environement not running !'});
+        java_client = null;
     });
 
     java_client.on("error", function(exception) {
         console.log("Client closed");
         console.log(exception.stack);
+        io.sockets.emit('js_client', {data: 'error:Virtual Environement not running !'});
+        java_client = null;
     });
 
     sock.on("error", function(exception) {
@@ -152,18 +175,23 @@ net.createServer(function(sock) {
     // Receive message from Humans
     sock.on('data', function(data) {
         console.log('| Receive from Humans: ' + data);
-        var string = String.fromCharCode.apply(null,data);
-        if (string.startsWith("action:") || string.startsWith("uritype:"))
+        var string = String.fromCharCode.apply(null, data);
+        if(string.startsWith("Connecte"))
         {
-            io.sockets.emit('js_client', { data: string});
+            io.sockets.emit('js_client', {data: 'error:'});
         }
-        //java_client.write(string);
+        else {
+            if (string.startsWith("action:") || string.startsWith("uritype:")) {
+                io.sockets.emit('js_client', {data: string});
+            }
+        }
     });
 
     // Add a 'close' - "event handler" in this socket instance
     sock.on('close', function(data) {
         // closed connection
         console.log('CLOSED: ' + sock.remoteAddress +' '+ sock.remotePort);
+        storyline = [];
     });
 
 

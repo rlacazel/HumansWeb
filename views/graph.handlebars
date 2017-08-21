@@ -1,6 +1,7 @@
+<div id="error_msg" style="color:red;text-align: center;font-size: large"></div>
 <div style="height:720px;">
     <div style="width:30%;margin-right:2%;float:left;">
-        <div id="header" style="border: 1px solid #000;">
+        <div id="header">
             Plan
         </div>
         <div id="treeplan">
@@ -10,18 +11,18 @@
 
 
     <div style="width:38%;margin-right:2%;float:left;">
-        <div id="header" style="border: 1px solid #000;">
+        <div id="header">
             Storyline
         </div>
 
-        <div id="tree">
-            {{{content}}}
+        <div id="storyline" style="border: 1px solid #000;">
+            <ul id="storylinelist"></ul>
         </div>
     </div>
 
 
     <div style="width:28%;float:right;">
-        <div id="header" style="border: 1px solid #000;">
+        <div id="header">
             Commandes
         </div>
 
@@ -84,7 +85,7 @@
             <div>
                 <form method="post" class="form">
                     <div class="row auto">
-                        <div class="col">
+                        <div class="col" >
                             <select id="attr" class="small">
                             </select>
                         </div>
@@ -102,6 +103,7 @@
                     </div>
                 </form>
             </div>
+            <button style="width: 100%" name="start" type="submit" class="button upper outline small">Start scénario</button>
         </div>
     </div>
 </div>

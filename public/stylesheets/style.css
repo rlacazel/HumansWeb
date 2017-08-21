@@ -4,7 +4,7 @@ div#command {
   overflow : auto;
 }
 
-div#tree {
+div#storyline {
   height: 700px;
   border: 1px solid #000;
   overflow : auto;
@@ -23,4 +23,17 @@ div#header {
   text-align: center;
   vertical-align: middle;
   background-color: #8c60ff;
+  border: 1px solid #000;
+}
+
+ul#storylinelist {
+  margin: 0px;
+}
+
+ul#storylinelist li {
+  list-style: none;
+  border: 1px solid #000;
+  border-width:thin;
+  padding-left:1em;
+  //background-color:lightgray;
 }

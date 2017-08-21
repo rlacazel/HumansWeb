@@ -116,7 +116,7 @@ $at.change(function() {
 // ------------------------
 // ---- Buttons -----
 // ------------------------
-$("button").click(function(e) {
+/*$("button").click(function(e) {
     e.preventDefault();
     $.ajax({
         type: "POST",
@@ -132,7 +132,7 @@ $("button").click(function(e) {
             // alert('error');
         }
     });
-});
+});*/
 
 $("button").click(function(e) {
     e.preventDefault();
@@ -222,15 +222,15 @@ jQuery(function($){
             redraw();
         }
 
-       /* tree.addLeaf = function(parent,id,lbl,st){
-            function addLeaf(t){
-                if(t.v==parent){ t.c.push({v:id, l:lbl, p:{},c:[],status:st}); return; }
-                t.c.forEach(function(parent){return addLeaf(parent);} );
+        tree.updateStatus = function(label,new_status)
+        {
+            function updateStatus(t){
+                if(t.l==label){ t.status=new_status; return; }
+                t.c.forEach(function(parent){return updateStatus(parent);} );
             }
-            addLeaf(tree.vis);
-            reposition(tree.vis);
+            updateStatus(tree.vis);
             redraw();
-        }*/
+        }
 
         tree.getColorNode = function(node)
         {
@@ -264,7 +264,7 @@ jQuery(function($){
 
             // circles.enter().append('ellipse').attr('cx',function(d){ return d.f.p.x;}).attr('cy',function(d){ return d.f.p.y;}).attr('rx',xRadius).attr('ry',yRadius)
             circles.enter().append('rect').attr('x',function(d){ return d.f.p.x-xRadius/2;}).attr('y',function(d){ return d.f.p.y-yRadius/2;}).attr('width',xRadius).attr('height',yRadius)
-                .attr("stroke", "black").attr("fill", function(d){ return tree.getColorNode(d)}).on('click',function(d){return tree.addLeaf(d.v);})
+                .attr("stroke", "black").attr("fill", function(d){ return tree.getColorNode(d)})//.on('click',function(d){return tree.addLeaf(d.v);})
                 .transition().duration(500).attr('x',function(d){ return d.p.x-xRadius/2;}).attr('y',function(d){ return d.p.y-yRadius/2;});
 
             var labels = d3.select("#g_labels").selectAll('text').data(tree.getVertices());
@@ -346,11 +346,11 @@ jQuery(function($){
 
             d3.select("#treesvg").append('g').attr('id','g_circles').selectAll('rect').data(tree.getVertices()).enter()
                 .append('rect').attr('x',function(d){ return d.p.x-xRadius/2;}).attr('y',function(d){ return d.p.y-yRadius/2;}).attr('width',xRadius).attr('height',yRadius)
-                .attr("stroke", "black").attr("fill", function(d){ return tree.getColorNode(d)}).on('click',function(d){return tree.addLeaf(d.v);});
+                .attr("stroke", "black").attr("fill", function(d){ return tree.getColorNode(d)});//.on('click',function(d){return tree.addLeaf(d.v);});
 
             d3.select("#treesvg").append('g').attr('id','g_labels').selectAll('text').data(tree.getVertices()).enter().append('text')
-                .attr('x',function(d){ return d.p.x;}).attr('y',function(d){ return d.p.y+5;}).text(function(d){return d.l;}).attr('font-size',12)
-                .on('click',function(d){return tree.addLeaf(d.v);});
+                .attr('x',function(d){ return d.p.x;}).attr('y',function(d){ return d.p.y+5;}).text(function(d){return d.l;}).attr('font-size',12);
+                //.on('click',function(d){return tree.addLeaf(d.v);});
 
             d3.select("#treesvg").append('g').attr('id','g_elabels').selectAll('text').data(tree.getEdges()).enter().append('text')
                 .attr('x',function(d){ return (d.p1.x+d.p2.x)/2+(d.p1.x < d.p2.x? 8: -8);}).attr('y',function(d){ return (d.p1.y+d.p2.y)/2;}).attr('font-size',12)
@@ -392,7 +392,12 @@ jQuery(function($){
         }
     }
 
-    var storyline= tree("#tree");
+    function addEntry(txt)
+    {
+        var list = d3.select("#storylinelist");
+        list.append('li').text(txt);
+    }
+
     var treeplan= tree("#treeplan");
     var node = 0;
     build_plan(treeplan,"[0[2[3]],1[4]]", "0:CommitStateInjury(i2,unknown,good)@1:Take(n2,g2)@2:VictNotBreathing(i2,good,v2)@3:VictDie(i2,good,v2)@4:Apply(n2,g2,v1,i1)");
@@ -401,21 +406,11 @@ jQuery(function($){
     socket.on('js_client', function (msg) {
         console.log(msg);
         var res = msg.data.toString().split(':');
-        // Receive ack of the form : action:<triggered,ack_success>:mocapid
-        if(res.length == 3 && res[0]=='action')
+        if (res[0]=='action')
         {
-            if (res[1] == 'triggered')
-            {
-                storyline.addLeaf(node,res[2],'ongoing');
-                node++;
-            }
-            else if (res[1] == 'ack_success')
-            {
-                storyline.updateVerticeStatus(res[2], 'success');
-                // todo : need to be unique id!
-            }
+            var core_msg = msg.data.toString().replace("action:","").trim();
+            addEntry(core_msg);
         }
-        // receive instances
         else if (res[0]=='uritype')
         {
             var core_msg = msg.data.toString().replace("uritype:","").trim();
@@ -462,6 +457,15 @@ jQuery(function($){
             // Trigger a change to refresh
             $at = $('#attr'); // The dropdowns
             $at.change();
+        }
+        else if (res[0]=='error')
+        {
+            var core_msg = msg.data.toString().replace("error:","").trim();
+            d3.select("#error_msg").text(core_msg);
+        }
+        else if (res[0]=='trigger')
+        {
+            treeplan.updateStatus('Start','success');
         }
     });
 
