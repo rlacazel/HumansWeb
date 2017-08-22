@@ -467,6 +467,10 @@ jQuery(function($){
         {
             treeplan.updateStatus('Start','success');
         }
+        else if (res[0]=='ack') // humans -> js_server -> here
+        {
+            // convert to plan string and put it in green if present
+        }
     });
 
 });

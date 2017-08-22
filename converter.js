@@ -18,14 +18,33 @@ module.exports = {
         else if(plan_action.startsWith('Apply('))
         {
             action_ev = "gotoandanimate";
-            for(i=0;i<params.length;i++)
-            {
-                // we don't care about injury, it is specific to planner
-                action_ev+=':'+params[0]; // character
-                action_ev+=':'+params[1]; // action type
-                action_ev+=':'+params[2]; // patient
-                action_ev+=':'+params[4]; // bodypart
+            // we don't care about injury, it is specific to planner
+            action_ev+=':'+params[0]; // character
+            action_ev+=':'+params[1]; // action type
+            action_ev+=':'+params[2]; // patient
+            action_ev+=':'+params[4]; // bodypart
+        }
+        // CommitStateInjury(i2,unknown,good) -> add victim and bodypart
+        else if(plan_action.startsWith('CommitStateInjury('))
+        {
+            action_ev = "attribute:is-bloodstain-";
+            var state = params[2];
+            if(state.equal('good')) {
+                action_ev += "0";
+            } else  if(state.equal('good')) {
+                action_ev += "0.5";
+            } else  if(state.equal('good')) {
+                action_ev += "1";
             }
+        }
+        else if(plan_action.startsWith('VictNotBreathing('))
+        {
+            action_ev = "attribute:is-breathing:0:";
+            action_ev += params[2];
+        }
+        else if(plan_action.startsWith('VictDie('))
+        {
+
         }
         return action_ev;
     }
