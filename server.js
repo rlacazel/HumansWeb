@@ -15,6 +15,7 @@ app.use(express.static('public'));
 
 var storyline = [];
 var java_client;
+var uritype;
 
 // IO
 var io = require('socket.io').listen(app.listen(3700));
@@ -32,11 +33,17 @@ app.set('view engine', 'handlebars');
 io.sockets.on('connection', function (socket)
 {
     console.log('Connection from web page');
-    if (java_client == null) {
+    if (java_client == null)
+    {
         io.sockets.emit('js_client', {data: 'error:Virtual Environement not running !'});
     }
-    else {
+    else if (uritype == null)
+    {
         send_message_to_humans('askuritype');
+    }
+    else // init page with type
+    {
+        socket.emit('js_client', {data: uritype});
     }
     for(i = 0; i < storyline.length; i++)
     {
@@ -158,6 +165,7 @@ net.createServer(function(sock) {
         console.log('Connection closed');
         io.sockets.emit('js_client', {data: 'error:Virtual Environement not running !'});
         java_client = null;
+        uritype = null;
     });
 
     java_client.on("error", function(exception) {
@@ -165,6 +173,7 @@ net.createServer(function(sock) {
         console.log(exception.stack);
         io.sockets.emit('js_client', {data: 'error:Virtual Environement not running !'});
         java_client = null;
+        uritype = null;
     });
 
     sock.on("error", function(exception) {
@@ -181,8 +190,16 @@ net.createServer(function(sock) {
             io.sockets.emit('js_client', {data: 'error:'});
         }
         else {
-            if (string.startsWith("action:") || string.startsWith("uritype:")) {
+            // Receive from humans ack for trigger or success of action
+            if (string.startsWith("ack:"))
+            {
                 io.sockets.emit('js_client', {data: string});
+            }
+            // uritype for the mapping between types and uris
+            else if (string.startsWith("uritype:"))
+            {
+                uritype = string;
+                io.sockets.emit('js_client', {data: uritype});
             }
         }
     });

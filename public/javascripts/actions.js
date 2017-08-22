@@ -144,7 +144,7 @@ $("button").click(function(e) {
             nurse: $('#nurse').val(),
             action: $('#action').val(),
             part: $('#part').val(),
-            victim: $('#uri_victim').val(),
+            victim: $('#victim').val(),
             nurse_take: $('#nurse_take').val(),
             object_take: $('#uri_object_take').val(),
             attr: $('#attr').val(),
@@ -406,14 +406,13 @@ jQuery(function($){
     socket.on('js_client', function (msg) {
         console.log(msg);
         var res = msg.data.toString().split(':');
+        var core_msg = msg.data.toString().replace(res[0]+':','').trim();
         if (res[0]=='action')
         {
-            var core_msg = msg.data.toString().replace("action:","").trim();
             addEntry(core_msg);
         }
         else if (res[0]=='uritype')
         {
-            var core_msg = msg.data.toString().replace("uritype:","").trim();
             var pair_uri_type = core_msg.split('@');
             var dict = {};
             for (i = 0; i < pair_uri_type.length; i++)
@@ -460,7 +459,6 @@ jQuery(function($){
         }
         else if (res[0]=='error')
         {
-            var core_msg = msg.data.toString().replace("error:","").trim();
             d3.select("#error_msg").text(core_msg);
         }
         else if (res[0]=='trigger')
@@ -470,6 +468,10 @@ jQuery(function($){
         else if (res[0]=='ack') // humans -> js_server -> here
         {
             // convert to plan string and put it in green if present
+            if(res[1]=='success')
+            {
+                treeplan.updateStatus(res[2],'success');
+            }
         }
     });
 

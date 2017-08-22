@@ -24,18 +24,26 @@ module.exports = {
             action_ev+=':'+params[2]; // patient
             action_ev+=':'+params[4]; // bodypart
         }
-        // CommitStateInjury(i2,unknown,good) -> add victim and bodypart
+        // CommitStateInjury(injury,previousstate,newtstae,patient,bodypart) -> add victim and bodypart
         else if(plan_action.startsWith('CommitStateInjury('))
         {
             action_ev = "attribute:is-bloodstain-";
+            var body = params[4];
+            if(body.startsWith('r')) {
+                action_ev += "right-"
+            } else if (body.startsWith('l')) {
+                action_ev += "left-"
+            }
+            action_ev += body.substring(1) + ':';
             var state = params[2];
             if(state.equal('good')) {
                 action_ev += "0";
-            } else  if(state.equal('good')) {
+            } else  if(state.equal('average')) {
                 action_ev += "0.5";
-            } else  if(state.equal('good')) {
+            } else  if(state.equal('bad')) {
                 action_ev += "1";
             }
+            action_ev += ':' + params[3];
         }
         else if(plan_action.startsWith('VictNotBreathing('))
         {
@@ -46,6 +54,12 @@ module.exports = {
         {
 
         }
+        return action_ev;
+    },
+    convert_ack_to_plan: function(ack)
+    {
+        var action_ev;
+
         return action_ev;
     }
 };
