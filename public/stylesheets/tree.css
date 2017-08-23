@@ -8,7 +8,7 @@ body{
     stroke-width:2px;
 }*/
 line{
-    stroke:grey;
+    //stroke:grey;
     stroke-width:3px;
 }
 #treesvg g text:hover, #treesvg g circle:hover{

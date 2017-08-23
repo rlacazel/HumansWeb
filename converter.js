@@ -56,10 +56,21 @@ module.exports = {
         }
         return action_ev;
     },
-    convert_ack_to_plan: function(ack)
+    clean_actionplan: function(actionplan)
     {
-        var action_ev;
-
-        return action_ev;
+        var action_cleaned = actionplan; // by default do nothing
+        var fullparams = actionplan.match(/\(([^)]+)\)/)[1];
+        var params = fullparams.split(',');
+        // Apply(nurse2,tourniquet_pneumatic2,v1,i1,rleg) -> get rid of injury
+        if(actionplan.startsWith('Apply('))
+        {
+            action_cleaned = 'Apply(';
+            action_cleaned+=params[0]; // character
+            action_cleaned+=','+params[1]; // action type
+            action_cleaned+=','+params[2]; // patient
+            action_cleaned+=','+params[4]; // bodypart
+            action_cleaned += ')';
+        }
+        return action_cleaned;
     }
 };

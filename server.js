@@ -49,6 +49,19 @@ io.sockets.on('connection', function (socket)
     {
         socket.emit('js_client', {data: storyline[i]});
     }
+
+    // TODO: get it from ActuPlan
+    // send plan to interface
+    var plan = '0:CommitStateInjury(i2,unknown,good)@1:Take(nurse1,tourniquet_pneumatic1)@2:VictNotBreathing(i2,good,v2)@3:VictDie(i2,good,v2)@4:Apply(nurse1,tourniquet_pneumatic1,patient1,i1,rleg)';
+    splittedplan = plan.split('@');
+    var cleanedplan = '';
+    for(var i = 0; i < splittedplan.length; i++)
+    {
+        var split = splittedplan[i].split(':');
+        cleanedplan += split[0] + ':' + converter.clean_actionplan(split[1]) + '@';
+    }
+    cleanedplan = cleanedplan.substring(0, cleanedplan.length - 1);
+    socket.emit('js_client', {data: 'buildplan:' + '[0[2[3]],1[4]]:' + cleanedplan});
 });
 
 
