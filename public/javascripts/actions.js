@@ -36,7 +36,7 @@ var data = [ // The data
         'rleg', 'lleg', 'chest'
     ]],
     ['apply', [
-        'LUpperLegMiddle','RUpperLegMiddle','RUpperLegTop','LUpperLegTop'
+        'rleg','lleg','rarm','larm','lchest','rchest'
     ]]
 ];
 
