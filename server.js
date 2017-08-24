@@ -6,6 +6,7 @@
 //==============================
 const util = require('util');
 var path = require('path');
+var datatree = require('data-tree');
 var converter = require('./converter');
 
 // Express
@@ -49,8 +50,73 @@ io.sockets.on('connection', function (socket)
     {
         socket.emit('js_client', {data: storyline[i]});
     }
+
+    // TODO: get it from ActuPlan
+    // send plan to interface
+    var plan = '0:CommitStateInjury(i2,unknown,good)@1:Take(nurse1,tp1)@2:VictNotBreathing(i2,good,v2)@3:VictDie(i2,good,v2)@4:Apply(nurse1,tp1,patient1,i1,rleg)';
+    splittedplan = plan.split('@');
+    var cleanedplan = '';
+    for(var i = 0; i < splittedplan.length; i++)
+    {
+        var split = splittedplan[i].split(':');
+        cleanedplan += split[0] + ':' + converter.clean_actionplan(split[1]) + '@';
+    }
+    cleanedplan = cleanedplan.substring(0, cleanedplan.length - 1);
+    socket.emit('js_client', {data: 'buildplan:' + '[0[2[3]],1[4]]:' + cleanedplan});
+
+    var tree = build_tree('[0[2[3]],1[4]]:', cleanedplan);
 });
 
+// https://www.npmjs.com/package/data-tree
+function build_tree(structure, label)
+{
+    // var tree = tree_module.CreateTree({id:0, label:"Start"});
+    var tree = datatree.create();
+    tree.insert({id:-1, label:"Start", controlled:true, delay:0, executed:false});
+
+    var stack = [tree._rootNode];
+    var lbl_dict = {};
+    var time_dict = {};
+    var split = structure.split(/(?=[\[,])/);
+    // Save label
+    var split_lbl = label.split("@");
+    var number_lbl = split_lbl.length;
+    for (var i = 0; i < number_lbl; i++)
+    {
+        var id_and_lbl = split_lbl[i].split(":");
+        lbl_dict[id_and_lbl[0]] = id_and_lbl[1];
+    }
+    // save time
+   /* var split_time = time.split("@");
+    var number_time = split_time.length;
+    for (var i = 0; i < number_time; i++)
+    {
+        var id_and_time = split_time[i].split(":");
+        time_dict[id_and_time[0]] = id_and_time[1];
+    }*/
+    var split_len = split.length;
+    for (var i = 0; i < split_len; i++)
+    {
+        if(split[i].startsWith(","))
+        {
+            stack.pop();
+        }
+        var nbclosingbracket = split[i].split("]").length-1;
+        var value = parseInt(split[i].replace("[","").replace("]","").replace(",",""));
+        // tree.addLeaf({id:node, label:lbl_dict[value]},stack[stack.length-1]);
+        tree.insertToNode(stack[stack.length-1],{id:value, label:lbl_dict[value]});
+        stack.push(tree._currentNode);
+        for(var j = 0, len = nbclosingbracket; j < len; j++)
+        {
+            stack.pop();
+        }
+    }
+
+    /*tree.traverser().traverseBFS(function(node){
+        console.log(node.data(), node.childNodes());
+    });*/
+    return tree;
+}
 
 //==============================
 //======== ROUTING SERVER ======

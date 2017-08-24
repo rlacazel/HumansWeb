@@ -8,10 +8,10 @@ body{
     stroke-width:2px;
 }*/
 line{
-    stroke:grey;
-    stroke-width:3px;
+    //stroke:grey;
+    stroke-width:2px;
 }
-#treesvg g text:hover, #treesvg g circle:hover{
+#treesvg g text:hover, #treesvg g rectangle:hover{
     cursor:pointer;
 }
 #navdiv{

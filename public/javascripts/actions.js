@@ -36,7 +36,7 @@ var data = [ // The data
         'rleg', 'lleg', 'chest'
     ]],
     ['apply', [
-        'LUpperLegMiddle','RUpperLegMiddle','RUpperLegTop','LUpperLegTop'
+        'rleg','lleg','rarm','larm','lchest','rchest'
     ]]
 ];
 
@@ -167,7 +167,7 @@ jQuery(function($){
     function tree(div){
         var w = $(div).width();
         var svgH = 580, xRadius=130, yRadius=28, tree={cx:w/2, cy:30, w:175, h:70};
-        // v: value node / l: label_node / P: position / c: child / status: none, ongoing, success, fail
+        // v: value node / l: label_node / P: position / c: child / status: none, ongoing, success, fail / t: time
         tree.vis={v:0, l:'Start', p:{x:tree.cx, y:tree.cy},c:[],status:'none'};
         tree.size=1;
         tree.glabels =[];
@@ -204,10 +204,27 @@ jQuery(function($){
             var e =[];
             // _ is current node
             function getEdges(_){
-                _.c.forEach(function(d){ e.push({v1:_.v, l1:_.l, p1:_.p, v2:d.v, l2:d.l, p2:d.p});});
+                _.c.forEach(function(d){ e.push({v1:_.v, l1:_.l, p1:{x:_.p.x, y:_.p.y+tree.cy/2}, v2:d.v, l2:d.l, p2:{x:d.p.x, y:d.p.y-tree.cy/2}});});
                 _.c.forEach(getEdges);
             }
             getEdges(tree.vis);
+            return e.sort(function(a,b){ return a.v2 - b.v2;});
+        }
+
+        tree.getInnerEdgesOfNode =  function(node){
+            var e =[];
+            // _ is current node
+            function getInnerEdgesOfNode(_){
+                _.c.forEach(function(d)
+                {
+                    if(d.v == node)
+                    {
+                        e.push({v1:_.v, l1:_.l, p1:{x:_.p.x, y:_.p.y+tree.cy/2}, v2:d.v, l2:d.l, p2:{x:d.p.x, y:d.p.y-tree.cy/2}});
+                    }
+                });
+                _.c.forEach(getInnerEdgesOfNode);
+            }
+            getInnerEdgesOfNode(tree.vis);
             return e.sort(function(a,b){ return a.v2 - b.v2;});
         }
 
@@ -244,26 +261,44 @@ jQuery(function($){
             }
         }
 
+       /* tree.start_line_timing = function(){
+            var edges = d3.select("#g_lines").selectAll('line').data(tree.getInnerEdgesOfNode(1));
+
+            edges.transition().duration(2000)
+                .attr('x1',function(d){ return d.p1.x;}).attr('y1',function(d){ return d.p1.y;})
+                .attr('x2',function(d){ return d.p2.x;}).attr('y2',function(d){ return d.p2.y;})
+                .attr("stroke", "lightgreen");
+
+            edges.enter().append('line')
+                .attr('x1',function(d){ return d.p1.x;}).attr('y1',function(d){ return d.p1.y;})
+                .attr('x2',function(d){ return d.p1.x;}).attr('y2',function(d){ return d.p1.y;})
+                .transition().duration(2000)
+                .attr('x2',function(d){ return d.p2.x;}).attr('y2',function(d){ return d.p2.y;})
+                .attr("stroke", "lightgreen");
+        }*/
+
         redraw = function(){
             var edges = d3.select("#g_lines").selectAll('line').data(tree.getEdges());
 
             edges.transition().duration(500)
                 .attr('x1',function(d){ return d.p1.x;}).attr('y1',function(d){ return d.p1.y;})
                 .attr('x2',function(d){ return d.p2.x;}).attr('y2',function(d){ return d.p2.y;})
+                .attr("stroke", "grey");
 
             edges.enter().append('line')
                 .attr('x1',function(d){ return d.p1.x;}).attr('y1',function(d){ return d.p1.y;})
                 .attr('x2',function(d){ return d.p1.x;}).attr('y2',function(d){ return d.p1.y;})
                 .transition().duration(500)
-                .attr('x2',function(d){ return d.p2.x;}).attr('y2',function(d){ return d.p2.y;});
+                .attr('x2',function(d){ return d.p2.x;}).attr('y2',function(d){ return d.p2.y;})
+                .attr("stroke", "grey");
 
-            var circles = d3.select("#g_circles").selectAll('rect').data(tree.getVertices());
+            var rectangles = d3.select("#g_rectangles").selectAll('rect').data(tree.getVertices());
 
             // Value whihc can change
-            circles.transition().duration(500).attr('x',function(d){ return d.p.x-xRadius/2;}).attr('y',function(d){ return d.p.y-yRadius/2;}).attr("stroke", "black").attr("fill", function(d){ return tree.getColorNode(d)});
+            rectangles.transition().duration(500).attr('x',function(d){ return d.p.x-xRadius/2;}).attr('y',function(d){ return d.p.y-yRadius/2;})
+                .attr("stroke", "black").attr("fill", function(d){ return tree.getColorNode(d)});
 
-            // circles.enter().append('ellipse').attr('cx',function(d){ return d.f.p.x;}).attr('cy',function(d){ return d.f.p.y;}).attr('rx',xRadius).attr('ry',yRadius)
-            circles.enter().append('rect').attr('x',function(d){ return d.f.p.x-xRadius/2;}).attr('y',function(d){ return d.f.p.y-yRadius/2;}).attr('width',xRadius).attr('height',yRadius)
+            rectangles.enter().append('rect').attr('x',function(d){ return d.f.p.x-xRadius/2;}).attr('y',function(d){ return d.f.p.y-yRadius/2;}).attr('width',xRadius).attr('height',yRadius)
                 .attr("stroke", "black").attr("fill", function(d){ return tree.getColorNode(d)})//.on('click',function(d){return tree.addLeaf(d.v);})
                 .transition().duration(500).attr('x',function(d){ return d.p.x-xRadius/2;}).attr('y',function(d){ return d.p.y-yRadius/2;});
 
@@ -290,21 +325,6 @@ jQuery(function($){
                             .attr('x', d.p.x).attr('y', d.p.y+5).attr('font-size', 11)
                             .selectAll("tspan").attr('x', d.p.x).attr('y', d.p.y-2);
                 });
-
-            /*labels.each(function (d) {
-                    var newstringreplaced = d.l.replace(/\(/gi, "@(");
-                    var arr = newstringreplaced.split("@");
-                        d3.select(this).selectAll('tspan').each(function (d)
-                        {
-                            d3.select(this).transition().duration(500).text(arr[i]).attr('x', d.p.x).attr('y', d.p.y + 5).attr('font-size', 12);
-                        }).transition().duration(500)
-                });*/
-
-            /*labels.enter().append('text').attr('x',function(d){ return d.f.p.x;}).attr('y',function(d){ return d.f.p.y+5;}).attr('font-size',12)
-                .text(function(d){return d.l;}).on('click',function(d){return tree.addLeaf(d.v);})
-                .transition().duration(500)
-                .attr('x',function(d){ return d.p.x;}).attr('y',function(d){ return d.p.y+5;});*/
-
 
 
             var elabels = d3.select("#g_elabels").selectAll('text').data(tree.getEdges());
@@ -344,7 +364,7 @@ jQuery(function($){
                 .attr('x1',function(d){ return d.p1.x;}).attr('y1',function(d){ return d.p1.y;})
                 .attr('x2',function(d){ return d.p2.x;}).attr('y2',function(d){ return d.p2.y;});
 
-            d3.select("#treesvg").append('g').attr('id','g_circles').selectAll('rect').data(tree.getVertices()).enter()
+            d3.select("#treesvg").append('g').attr('id','g_rectangles').selectAll('rect').data(tree.getVertices()).enter()
                 .append('rect').attr('x',function(d){ return d.p.x-xRadius/2;}).attr('y',function(d){ return d.p.y-yRadius/2;}).attr('width',xRadius).attr('height',yRadius)
                 .attr("stroke", "black").attr("fill", function(d){ return tree.getColorNode(d)});//.on('click',function(d){return tree.addLeaf(d.v);});
 
@@ -361,18 +381,28 @@ jQuery(function($){
         return tree;
     }
 
-    function build_plan(tree, structure, lbl)
+    function build_plan(tree, structure, lbl, time)
     {
         var stack = [0];
         var node=0;
         var lbl_dict = {};
+        var time_dict = {};
         var split = structure.split(/(?=[\[,])/);
+        // Save label
         var split_lbl = lbl.split("@");
-        var split_len_lbl = split_lbl.length;
-        for (var i = 0; i < split_len_lbl; i++)
+        var number_lbl = split_lbl.length;
+        for (var i = 0; i < number_lbl; i++)
         {
-            var id_lbl = split_lbl[i].split(":");
-            lbl_dict[id_lbl[0]] = id_lbl[1];
+            var id_and_lbl = split_lbl[i].split(":");
+            lbl_dict[id_and_lbl[0]] = id_and_lbl[1];
+        }
+        // save time
+        var split_time = lbl.split("@");
+        var number_time = split_time.length;
+        for (var i = 0; i < number_time; i++)
+        {
+            var id_and_time = split_time[i].split(":");
+            time_dict[id_and_time[0]] = id_and_time[1];
         }
         var split_len = split.length;
         for (var i = 0; i < split_len; i++)
@@ -399,8 +429,10 @@ jQuery(function($){
     }
 
     var treeplan= tree("#treeplan");
+    var timer = new Timer();
     var node = 0;
-    build_plan(treeplan,"[0[2[3]],1[4]]", "0:CommitStateInjury(i2,unknown,good)@1:Take(n2,g2)@2:VictNotBreathing(i2,good,v2)@3:VictDie(i2,good,v2)@4:Apply(n2,g2,v1,i1)");
+
+    // treeplan.start_line_timing();
 
     var socket = io.connect('http://localhost:3700');
     socket.on('js_client', function (msg) {
@@ -464,15 +496,29 @@ jQuery(function($){
         else if (res[0]=='trigger')
         {
             treeplan.updateStatus('Start','success');
+            timer.start();
         }
         else if (res[0]=='ack') // humans -> js_server -> here
         {
             // convert to plan string and put it in green if present
             if(res[1]=='success')
             {
-                treeplan.updateStatus(res[2],'success');
+                treeplan.updateStatus(res[2].trim(),'success');
             }
+        }
+        else if (res[0]=='buildplan') // humans -> js_server -> here
+        {
+            var core_msg = msg.data.toString().replace(res[0]+':'+res[1]+':','').trim();
+            build_plan(treeplan, res[1].trim(), core_msg, null);
         }
     });
 
+    timer.addEventListener('secondsUpdated', function (e) {
+        $('#storyline .values').html(timer.getTimeValues().toString());
+    });
+    timer.addEventListener('started', function (e) {
+        $('#storyline .values').html(timer.getTimeValues().toString());
+    });
 });
+
+// radial timer : https://codepen.io/anon/pen/yoqYQV
