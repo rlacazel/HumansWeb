@@ -64,7 +64,7 @@ io.sockets.on('connection', function (socket)
     cleanedplan = cleanedplan.substring(0, cleanedplan.length - 1);
     socket.emit('js_client', {data: 'buildplan:' + '[0[2[3]],1[4]]:' + cleanedplan});
 
-    build_tree('[0[2[3]],1[4]]:', cleanedplan);
+    var tree = build_tree('[0[2[3]],1[4]]:', cleanedplan);
 });
 
 // https://www.npmjs.com/package/data-tree
@@ -72,7 +72,7 @@ function build_tree(structure, label)
 {
     // var tree = tree_module.CreateTree({id:0, label:"Start"});
     var tree = datatree.create();
-    tree.insert({id:-1, label:"Start"});
+    tree.insert({id:-1, label:"Start", controlled:true, delay:0, executed:false});
 
     var stack = [tree._rootNode];
     var lbl_dict = {};
@@ -115,6 +115,7 @@ function build_tree(structure, label)
     /*tree.traverser().traverseBFS(function(node){
         console.log(node.data(), node.childNodes());
     });*/
+    return tree;
 }
 
 //==============================
