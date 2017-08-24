@@ -283,22 +283,22 @@ jQuery(function($){
             edges.transition().duration(500)
                 .attr('x1',function(d){ return d.p1.x;}).attr('y1',function(d){ return d.p1.y;})
                 .attr('x2',function(d){ return d.p2.x;}).attr('y2',function(d){ return d.p2.y;})
-                .attr("stroke", "lightgrey");
+                .attr("stroke", "grey");
 
             edges.enter().append('line')
                 .attr('x1',function(d){ return d.p1.x;}).attr('y1',function(d){ return d.p1.y;})
                 .attr('x2',function(d){ return d.p1.x;}).attr('y2',function(d){ return d.p1.y;})
                 .transition().duration(500)
                 .attr('x2',function(d){ return d.p2.x;}).attr('y2',function(d){ return d.p2.y;})
-                .attr("stroke", "lightgrey");
+                .attr("stroke", "grey");
 
-            var circles = d3.select("#g_circles").selectAll('rect').data(tree.getVertices());
+            var rectangles = d3.select("#g_rectangles").selectAll('rect').data(tree.getVertices());
 
             // Value whihc can change
-            circles.transition().duration(500).attr('x',function(d){ return d.p.x-xRadius/2;}).attr('y',function(d){ return d.p.y-yRadius/2;}).attr("stroke", "black").attr("fill", function(d){ return tree.getColorNode(d)});
+            rectangles.transition().duration(500).attr('x',function(d){ return d.p.x-xRadius/2;}).attr('y',function(d){ return d.p.y-yRadius/2;})
+                .attr("stroke", "black").attr("fill", function(d){ return tree.getColorNode(d)});
 
-            // circles.enter().append('ellipse').attr('cx',function(d){ return d.f.p.x;}).attr('cy',function(d){ return d.f.p.y;}).attr('rx',xRadius).attr('ry',yRadius)
-            circles.enter().append('rect').attr('x',function(d){ return d.f.p.x-xRadius/2;}).attr('y',function(d){ return d.f.p.y-yRadius/2;}).attr('width',xRadius).attr('height',yRadius)
+            rectangles.enter().append('rect').attr('x',function(d){ return d.f.p.x-xRadius/2;}).attr('y',function(d){ return d.f.p.y-yRadius/2;}).attr('width',xRadius).attr('height',yRadius)
                 .attr("stroke", "black").attr("fill", function(d){ return tree.getColorNode(d)})//.on('click',function(d){return tree.addLeaf(d.v);})
                 .transition().duration(500).attr('x',function(d){ return d.p.x-xRadius/2;}).attr('y',function(d){ return d.p.y-yRadius/2;});
 
@@ -325,21 +325,6 @@ jQuery(function($){
                             .attr('x', d.p.x).attr('y', d.p.y+5).attr('font-size', 11)
                             .selectAll("tspan").attr('x', d.p.x).attr('y', d.p.y-2);
                 });
-
-            /*labels.each(function (d) {
-                    var newstringreplaced = d.l.replace(/\(/gi, "@(");
-                    var arr = newstringreplaced.split("@");
-                        d3.select(this).selectAll('tspan').each(function (d)
-                        {
-                            d3.select(this).transition().duration(500).text(arr[i]).attr('x', d.p.x).attr('y', d.p.y + 5).attr('font-size', 12);
-                        }).transition().duration(500)
-                });*/
-
-            /*labels.enter().append('text').attr('x',function(d){ return d.f.p.x;}).attr('y',function(d){ return d.f.p.y+5;}).attr('font-size',12)
-                .text(function(d){return d.l;}).on('click',function(d){return tree.addLeaf(d.v);})
-                .transition().duration(500)
-                .attr('x',function(d){ return d.p.x;}).attr('y',function(d){ return d.p.y+5;});*/
-
 
 
             var elabels = d3.select("#g_elabels").selectAll('text').data(tree.getEdges());
@@ -379,7 +364,7 @@ jQuery(function($){
                 .attr('x1',function(d){ return d.p1.x;}).attr('y1',function(d){ return d.p1.y;})
                 .attr('x2',function(d){ return d.p2.x;}).attr('y2',function(d){ return d.p2.y;});
 
-            d3.select("#treesvg").append('g').attr('id','g_circles').selectAll('rect').data(tree.getVertices()).enter()
+            d3.select("#treesvg").append('g').attr('id','g_rectangles').selectAll('rect').data(tree.getVertices()).enter()
                 .append('rect').attr('x',function(d){ return d.p.x-xRadius/2;}).attr('y',function(d){ return d.p.y-yRadius/2;}).attr('width',xRadius).attr('height',yRadius)
                 .attr("stroke", "black").attr("fill", function(d){ return tree.getColorNode(d)});//.on('click',function(d){return tree.addLeaf(d.v);});
 
@@ -444,6 +429,7 @@ jQuery(function($){
     }
 
     var treeplan= tree("#treeplan");
+    var timer = new Timer();
     var node = 0;
 
     // treeplan.start_line_timing();
@@ -510,6 +496,7 @@ jQuery(function($){
         else if (res[0]=='trigger')
         {
             treeplan.updateStatus('Start','success');
+            timer.start();
         }
         else if (res[0]=='ack') // humans -> js_server -> here
         {
@@ -526,4 +513,12 @@ jQuery(function($){
         }
     });
 
+    timer.addEventListener('secondsUpdated', function (e) {
+        $('#storyline .values').html(timer.getTimeValues().toString());
+    });
+    timer.addEventListener('started', function (e) {
+        $('#storyline .values').html(timer.getTimeValues().toString());
+    });
 });
+
+// radial timer : https://codepen.io/anon/pen/yoqYQV
