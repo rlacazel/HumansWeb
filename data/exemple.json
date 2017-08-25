@@ -1,0 +1,22 @@
+{
+  "options": {
+    "directed": true,
+    "multigraph": false,
+    "compound": false
+  },
+  "nodes": [
+    { "v": 0, "value": { "label": "Start", "controlled": true, "delay": 0, "executed": false} },
+    { "v": 1, "value": { "label": "CommitStateInjury(i2,unknown,good)", "controlled": true, "delay": 3, "executed": false} },
+    { "v": 2, "value": { "label": "Take(nurse1,tp1)", "controlled": false, "delay": 0, "executed": false} },
+    { "v": 3, "value": { "label": "VictNotBreathing(i2,good,v2)", "controlled": true, "delay": 3, "executed": false} },
+    { "v": 4, "value": { "label": "VictDie(i2,good,v2)", "controlled": true, "delay": 3, "executed": false} },
+    { "v": 5, "value": { "label": "Apply(nurse1,tp1,patient1,rleg)", "controlled": false, "delay": 0, "executed": false} }
+  ],
+  "edges": [
+    { "v": 0, "w": 1, "value": { "label": "" } },
+    { "v": 0, "w": 2, "value": { "label": "" } },
+    { "v": 2, "w": 5, "value": { "label": "" } },
+    { "v": 1, "w": 3, "value": { "label": "" } },
+    { "v": 3, "w": 4, "value": { "label": "" } }
+  ]
+}

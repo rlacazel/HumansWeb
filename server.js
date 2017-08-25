@@ -6,17 +6,19 @@
 //==============================
 const util = require('util');
 var path = require('path');
-var datatree = require('data-tree');
 var converter = require('./converter');
+var planner = require('./plan');
 
 // Express
 var express = require('express');
 var app = express();
 app.use(express.static('public'));
 
+// globale variables
 var storyline = [];
 var java_client;
 var uritype;
+var plan_graph;
 
 // IO
 var io = require('socket.io').listen(app.listen(3700));
@@ -64,59 +66,14 @@ io.sockets.on('connection', function (socket)
     cleanedplan = cleanedplan.substring(0, cleanedplan.length - 1);
     socket.emit('js_client', {data: 'buildplan:' + '[0[2[3]],1[4]]:' + cleanedplan});
 
-    var tree = build_tree('[0[2[3]],1[4]]:', cleanedplan);
-});
-
-// https://www.npmjs.com/package/data-tree
-function build_tree(structure, label)
-{
-    // var tree = tree_module.CreateTree({id:0, label:"Start"});
-    var tree = datatree.create();
-    tree.insert({id:-1, label:"Start", controlled:true, delay:0, executed:false});
-
-    var stack = [tree._rootNode];
-    var lbl_dict = {};
-    var time_dict = {};
-    var split = structure.split(/(?=[\[,])/);
-    // Save label
-    var split_lbl = label.split("@");
-    var number_lbl = split_lbl.length;
-    for (var i = 0; i < number_lbl; i++)
-    {
-        var id_and_lbl = split_lbl[i].split(":");
-        lbl_dict[id_and_lbl[0]] = id_and_lbl[1];
-    }
-    // save time
-   /* var split_time = time.split("@");
-    var number_time = split_time.length;
-    for (var i = 0; i < number_time; i++)
-    {
-        var id_and_time = split_time[i].split(":");
-        time_dict[id_and_time[0]] = id_and_time[1];
+    plan_graph = planner.build_graph();
+    /*var n = planner.get_next_nodes_to_execute(plan_graph);
+    while(n != null) {
+        plan_graph.node(n).executed = true;
+        console.log(plan_graph.node(n));
+        n = planner.get_next_nodes_to_execute(plan_graph);
     }*/
-    var split_len = split.length;
-    for (var i = 0; i < split_len; i++)
-    {
-        if(split[i].startsWith(","))
-        {
-            stack.pop();
-        }
-        var nbclosingbracket = split[i].split("]").length-1;
-        var value = parseInt(split[i].replace("[","").replace("]","").replace(",",""));
-        // tree.addLeaf({id:node, label:lbl_dict[value]},stack[stack.length-1]);
-        tree.insertToNode(stack[stack.length-1],{id:value, label:lbl_dict[value]});
-        stack.push(tree._currentNode);
-        for(var j = 0, len = nbclosingbracket; j < len; j++)
-        {
-            stack.pop();
-        }
-    }
-
-    /*tree.traverser().traverseBFS(function(node){
-        console.log(node.data(), node.childNodes());
-    });*/
-    return tree;
-}
+});
 
 //==============================
 //======== ROUTING SERVER ======
@@ -141,15 +98,6 @@ app.get('/index.html', function (req, res)
 // Receive command to execute in VE
 app.post('/action', function (req, res) {
     var id = req.body.id;
-    /*if(id == 'trigger') {
-        console.log('action:triggered:PutBandageHemostaticOnP1');
-        io.sockets.emit('js_client', {data: 'action:triggered:PutBandageHemostaticOnP1'});
-    }
-    else if(id == 'ack') {
-        console.log('action:ack_success:PutBandageHemostaticOnP1');
-        io.sockets.emit('js_client', {data: 'action:ack_success:PutBandageHemostaticOnP1'});
-    }
-    else */
     if (id == 'gotoandanimate') {
         var nurse = req.body.nurse;
         var action = req.body.action;
@@ -180,12 +128,24 @@ app.post('/action', function (req, res) {
         io.sockets.emit('js_client', {data: txt});
         send_message_to_humans('attribute:'+attr+':'+value+':'+object);
     }
-    else if (id == 'start') {
-        io.sockets.emit('js_client', {data: 'trigger:Start'});
+    else if (id == 'start')
+    {
+        var n = planner.get_next_nodes_to_execute(plan_graph);
+        setTimeout(function(){execute_node(plan_graph.node(n));},plan_graph.node(n).delay*1000);
     }
     res.end();
 })
 
+function execute_node(node)
+{
+    io.sockets.emit('js_client', {data: 'trigger:' + node.label});
+    node.executed = true;
+    var n = planner.get_next_nodes_to_execute(plan_graph);
+    if (n != null)
+    {
+        setTimeout(function(){execute_node(plan_graph.node(n));},plan_graph.node(n).delay*1000);
+    }
+}
 
 // custom 404 page
 // app.use it called when nothing before matches the uri

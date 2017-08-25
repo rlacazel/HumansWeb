@@ -116,24 +116,6 @@ $at.change(function() {
 // ------------------------
 // ---- Buttons -----
 // ------------------------
-/*$("button").click(function(e) {
-    e.preventDefault();
-    $.ajax({
-        type: "POST",
-        url: "/action",
-        data: {
-            id: $(this).val(), // < note use of 'this' here
-            //access_token: $("#access_token").val()
-        },
-        success: function(result) {
-            // alert('ok');
-        },
-        error: function(result) {
-            // alert('error');
-        }
-    });
-});*/
-
 $("button").click(function(e) {
     e.preventDefault();
     $.ajax({
@@ -495,8 +477,11 @@ jQuery(function($){
         }
         else if (res[0]=='trigger')
         {
-            treeplan.updateStatus('Start','success');
-            timer.start();
+            treeplan.updateStatus(res[1],'success');
+            if (res[1] == 'Start') // TODO: stop adding hardcode
+            {
+                timer.start();
+            }
         }
         else if (res[0]=='ack') // humans -> js_server -> here
         {
