@@ -1,5 +1,4 @@
 // https://www.npmjs.com/package/data-tree
-var datatree = require('data-tree');
 var graph = require('graphlib');
 var fs = require('fs');
 
@@ -10,6 +9,10 @@ module.exports = {
         var contents = fs.readFileSync('data/exemple.json', 'utf8');
         var g = graph.json.read(JSON.parse(contents));
         return g;
+    },
+    get_stringified_graph: function(g)
+    {
+        return graph.json.write(g);
     },
     get_next_nodes_to_execute: function(g)
     {

@@ -28,43 +28,43 @@ jQuery(function($){
 // ------------------------
 // ---- GotoAndAnimate -----
 // ------------------------
-var data = [ // The data
-    ['check', [
-        'head','leg','chest'
-    ]],
-    ['cut', [
-        'rleg', 'lleg', 'chest'
-    ]],
-    ['apply', [
-        'rleg','lleg','rarm','larm','lchest','rchest'
-    ]]
-];
+    var data = [ // The data
+        ['check', [
+            'head','leg','chest'
+        ]],
+        ['cut', [
+            'rleg', 'lleg', 'chest'
+        ]],
+        ['apply', [
+            'rleg','lleg','rarm','larm','lchest','rchest'
+        ]]
+    ];
 
 
-$a = $('#action'); // The dropdowns
-$b = $('#part');
+    $a = $('#action'); // The dropdowns
+    $b = $('#part');
 
-for(var i = 0; i < data.length; i++) {
-    var first = data[i][0];
-    $a.append($("<option>"). // Add options
-    attr("value",first).
-    data("sel", i).
-    text(first));
-}
-
-$a.change(function() {
-    var index = $(this).children('option:selected').data('sel');
-    var second = data[index][1]; // The second-choice data
-
-    $b.html(''); // Clear existing options in second dropdown
-
-    for(var j = 0; j < second.length; j++) {
-        $b.append($("<option>"). // Add options
-        attr("value",second[j]).
-        data("sel", j).
-        text(second[j]));
+    for(var i = 0; i < data.length; i++) {
+        var first = data[i][0];
+        $a.append($("<option>"). // Add options
+        attr("value",first).
+        data("sel", i).
+        text(first));
     }
-}).change(); // Trigger once to add options at load of first choice
+
+    $a.change(function() {
+        var index = $(this).children('option:selected').data('sel');
+        var second = data[index][1]; // The second-choice data
+
+        $b.html(''); // Clear existing options in second dropdown
+
+        for(var j = 0; j < second.length; j++) {
+            $b.append($("<option>"). // Add options
+            attr("value",second[j]).
+            data("sel", j).
+            text(second[j]));
+        }
+    }).change(); // Trigger once to add options at load of first choice
 
 // ------------------------
 // ---- Attribute -----
@@ -72,85 +72,86 @@ $a.change(function() {
 
 
 
-$at = $('#attr'); // The dropdowns
-$va = $('#attr_value');
-$ob = $('#attr_object');
+    $at = $('#attr'); // The dropdowns
+    $va = $('#attr_value');
+    $ob = $('#attr_object');
 
-for(var i = 0; i < attribute_data.length; i++) {
-    var first = attribute_data[i][0];
-    for(var j = 0; j < first.length; j++)
-    {
-        var splitted_data = first[j].split(':');
-        $at.append($("<option>").// Add options
-        attr("value", splitted_data[1]).data("sel", i).text(splitted_data[0]));
-    }
-}
-
-$at.change(function() {
-    var index = $(this).children('option:selected').data('sel');
-    var second = attribute_data[index][1]; // The second-choice data
-
-    $va.html(''); // Clear existing options in second dropdown
-
-    for(var j = 0; j < second.length; j++) {
-        $va.append($("<option>").
-        attr("value",second[j]).
-        data("sel", j).
-        text(second[j]));
+    for(var i = 0; i < attribute_data.length; i++) {
+        var first = attribute_data[i][0];
+        for(var j = 0; j < first.length; j++)
+        {
+            var splitted_data = first[j].split(':');
+            $at.append($("<option>").// Add options
+            attr("value", splitted_data[1]).data("sel", i).text(splitted_data[0]));
+        }
     }
 
-    var third = attribute_data[index][2]; // The second-choice data
+    $at.change(function() {
+        var index = $(this).children('option:selected').data('sel');
+        var second = attribute_data[index][1]; // The second-choice data
 
-    $ob.html(''); // Clear existing options in second dropdown
+        $va.html(''); // Clear existing options in second dropdown
 
-    for(var j = 0; j < third.length; j++) {
-        $ob.append($("<option>"). // Add options
-        // attr("id","uri").
-        attr("value",third[j]).
-        data("sel", j).
-        text(third[j]));
-    }
-}).change(); // Trigger once to add options at load of first choice
+        for(var j = 0; j < second.length; j++) {
+            $va.append($("<option>").
+            attr("value",second[j]).
+            data("sel", j).
+            text(second[j]));
+        }
+
+        var third = attribute_data[index][2]; // The second-choice data
+
+        $ob.html(''); // Clear existing options in second dropdown
+
+        for(var j = 0; j < third.length; j++) {
+            $ob.append($("<option>"). // Add options
+            // attr("id","uri").
+            attr("value",third[j]).
+            data("sel", j).
+            text(third[j]));
+        }
+    }).change(); // Trigger once to add options at load of first choice
 
 
 // ------------------------
 // ---- Buttons -----
 // ------------------------
-$("button").click(function(e) {
-    e.preventDefault();
-    $.ajax({
-        type: "POST",
-        url: "/action",
-        data: {
-            id: $(this).attr('name'), // < note use of 'this' here
-            nurse: $('#nurse').val(),
-            action: $('#action').val(),
-            part: $('#part').val(),
-            victim: $('#victim').val(),
-            nurse_take: $('#nurse_take').val(),
-            object_take: $('#uri_object_take').val(),
-            attr: $('#attr').val(),
-            attr_value: $('#attr_value').val(),
-            attr_object: $('#attr_object').val()
-        },
-        success: function(result) {
-            // alert('ok');
-        },
-        error: function(result) {
-            // alert('error');
-        }
+    $("button").click(function(e) {
+        e.preventDefault();
+        $.ajax({
+            type: "POST",
+            url: "/action",
+            data: {
+                id: $(this).attr('name'), // < note use of 'this' here
+                nurse: $('#nurse').val(),
+                action: $('#action').val(),
+                part: $('#part').val(),
+                victim: $('#victim').val(),
+                nurse_take: $('#nurse_take').val(),
+                object_take: $('#uri_object_take').val(),
+                attr: $('#attr').val(),
+                attr_value: $('#attr_value').val(),
+                attr_object: $('#attr_object').val()
+            },
+            success: function(result) {
+                // alert('ok');
+            },
+            error: function(result) {
+                // alert('error');
+            }
+        });
     });
-});
 
 });
 
 jQuery(function($){
 
-    function tree(div){
-        var w = $(div).width();
+    function tree(d){
+        var w = $(d).width();
+        var div = d;
         var svgH = 580, xRadius=130, yRadius=28, tree={cx:w/2, cy:30, w:175, h:70};
         // v: value node / l: label_node / P: position / c: child / status: none, ongoing, success, fail / t: time
-        tree.vis={v:0, l:'Start', p:{x:tree.cx, y:tree.cy},c:[],status:'none'};
+        tree.vis={v:0, l:'Start', p:{x:tree.cx, y:tree.cy},c:[],status:'none', delay:0};
         tree.size=1;
         tree.glabels =[];
 
@@ -162,6 +163,18 @@ jQuery(function($){
                 t.c.forEach(function(d){ return getVertices(d,{v:t.v, p:t.p}); });
             }
             getVertices(tree.vis,{});
+            return v.sort(function(a,b){ return a.v - b.v;});
+        }
+
+        tree.getNodeWithTimer =  function(){
+            var v =[];
+            function getNodeWithTimer(t){
+                if(t.delay > 0) {
+                    v.push(t);
+                }
+                t.c.forEach(function(d){ return getNodeWithTimer(d); });
+            }
+            getNodeWithTimer(tree.vis);
             return v.sort(function(a,b){ return a.v - b.v;});
         }
 
@@ -211,9 +224,9 @@ jQuery(function($){
         }
 
         // add a leaf to the child param 'c' of the node input
-        tree.addLeaf = function(parent,lbl,st){
+        tree.addLeaf = function(parent,value,lbl,delay,st){
             function addLeaf(t){
-                if(t.v==parent){ t.c.push({v:tree.size++, l:lbl, p:{},c:[],status:st}); return; }
+                if(t.v==parent){ t.c.push({v:value, l:lbl, p:{},c:[],status:st, delay:delay}); return; }
                 t.c.forEach(function(parent){return addLeaf(parent);} );
             }
             addLeaf(tree.vis);
@@ -243,24 +256,8 @@ jQuery(function($){
             }
         }
 
-       /* tree.start_line_timing = function(){
-            var edges = d3.select("#g_lines").selectAll('line').data(tree.getInnerEdgesOfNode(1));
-
-            edges.transition().duration(2000)
-                .attr('x1',function(d){ return d.p1.x;}).attr('y1',function(d){ return d.p1.y;})
-                .attr('x2',function(d){ return d.p2.x;}).attr('y2',function(d){ return d.p2.y;})
-                .attr("stroke", "lightgreen");
-
-            edges.enter().append('line')
-                .attr('x1',function(d){ return d.p1.x;}).attr('y1',function(d){ return d.p1.y;})
-                .attr('x2',function(d){ return d.p1.x;}).attr('y2',function(d){ return d.p1.y;})
-                .transition().duration(2000)
-                .attr('x2',function(d){ return d.p2.x;}).attr('y2',function(d){ return d.p2.y;})
-                .attr("stroke", "lightgreen");
-        }*/
-
         redraw = function(){
-            var edges = d3.select("#g_lines").selectAll('line').data(tree.getEdges());
+            /*var edges = d3.select("#g_lines").selectAll('line').data(tree.getEdges());
 
             edges.transition().duration(500)
                 .attr('x1',function(d){ return d.p1.x;}).attr('y1',function(d){ return d.p1.y;})
@@ -272,14 +269,15 @@ jQuery(function($){
                 .attr('x2',function(d){ return d.p1.x;}).attr('y2',function(d){ return d.p1.y;})
                 .transition().duration(500)
                 .attr('x2',function(d){ return d.p2.x;}).attr('y2',function(d){ return d.p2.y;})
-                .attr("stroke", "grey");
+                .attr("stroke", "grey");*/
 
             var rectangles = d3.select("#g_rectangles").selectAll('rect').data(tree.getVertices());
 
-            // Value whihc can change
+            // Update rectangle color
             rectangles.transition().duration(500).attr('x',function(d){ return d.p.x-xRadius/2;}).attr('y',function(d){ return d.p.y-yRadius/2;})
                 .attr("stroke", "black").attr("fill", function(d){ return tree.getColorNode(d)});
 
+            /*
             rectangles.enter().append('rect').attr('x',function(d){ return d.f.p.x-xRadius/2;}).attr('y',function(d){ return d.f.p.y-yRadius/2;}).attr('width',xRadius).attr('height',yRadius)
                 .attr("stroke", "black").attr("fill", function(d){ return tree.getColorNode(d)})//.on('click',function(d){return tree.addLeaf(d.v);})
                 .transition().duration(500).attr('x',function(d){ return d.p.x-xRadius/2;}).attr('y',function(d){ return d.p.y-yRadius/2;});
@@ -303,10 +301,10 @@ jQuery(function($){
 
             // already existing label
             labels.each(function (d) {
-                        d3.select(this).transition().duration(500)
-                            .attr('x', d.p.x).attr('y', d.p.y+5).attr('font-size', 11)
-                            .selectAll("tspan").attr('x', d.p.x).attr('y', d.p.y-2);
-                });
+                d3.select(this).transition().duration(500)
+                    .attr('x', d.p.x).attr('y', d.p.y+5).attr('font-size', 11)
+                    .selectAll("tspan").attr('x', d.p.x).attr('y', d.p.y-2);
+            });
 
 
             var elabels = d3.select("#g_elabels").selectAll('text').data(tree.getEdges());
@@ -320,7 +318,7 @@ jQuery(function($){
                 .text(function(d){return tree.glabels.length==0? '': Math.abs(d.l1 -d.l2);});
 
             // Resize  svg height if higher
-            d3.select("#treesvg").attr("height", svgH);
+            d3.select("#treesvg").attr("height", svgH);*/
         }
 
         getLeafCount = function(_){
@@ -339,26 +337,48 @@ jQuery(function($){
             });
         }
 
-        initialize = function(div){
+        tree.initialize = function(){
             d3.select(div).append("svg").attr("width", "100%").attr("height", svgH).attr('id','treesvg');
 
             d3.select("#treesvg").append('g').attr('id','g_lines').selectAll('line').data(tree.getEdges()).enter().append('line')
                 .attr('x1',function(d){ return d.p1.x;}).attr('y1',function(d){ return d.p1.y;})
-                .attr('x2',function(d){ return d.p2.x;}).attr('y2',function(d){ return d.p2.y;});
+                .attr('x2',function(d){ return d.p2.x;}).attr('y2',function(d){ return d.p2.y;}).attr("stroke", "grey");
+
+            d3.select("#treesvg").append('g').attr('id','g_lines_timer').selectAll('line').data(tree.getEdges()).enter().append('line')
+                .attr('x1',function(d){ return d.p1.x;}).attr('y1',function(d){ return d.p1.y;})
+                .attr('x2',function(d){ return d.p2.x;}).attr('y2',function(d){ return d.p2.y;}).attr("stroke", "grey")
+                .attr('id',function(d){ return d.v2;});
 
             d3.select("#treesvg").append('g').attr('id','g_rectangles').selectAll('rect').data(tree.getVertices()).enter()
                 .append('rect').attr('x',function(d){ return d.p.x-xRadius/2;}).attr('y',function(d){ return d.p.y-yRadius/2;}).attr('width',xRadius).attr('height',yRadius)
-                .attr("stroke", "black").attr("fill", function(d){ return tree.getColorNode(d)});//.on('click',function(d){return tree.addLeaf(d.v);});
+                .attr("stroke", "grey").attr("fill", function(d){ return tree.getColorNode(d)});//.on('click',function(d){return tree.addLeaf(d.v);});
+
+            /*d3.select("#treesvg").append('g').attr('id','g_rectangles_timer').selectAll('rect').data(tree.getNodeWithTimer()).enter()
+                .append('rect').attr('id',function(d){ return d.v;}).attr('x',function(d){ return d.p.x-xRadius/2;}).attr('y',function(d){ return d.p.y-yRadius/2;}).attr('width',xRadius).attr('height',yRadius)
+                .attr("stroke", "white").attr('stroke-width',0).attr("fill", function(d){ return tree.getColorNode(d)});*/
+
+            /*d3.select("#treesvg").append('g').attr('id','g_timer').selectAll('circle').data(tree.getNodeWithTimer()).enter()
+                .append('circle').attr('cx',function(d){ return d.p.x - tree.w/2;}).attr('cy',function(d){ return d.p.y;}).attr('r',15);*/
 
             d3.select("#treesvg").append('g').attr('id','g_labels').selectAll('text').data(tree.getVertices()).enter().append('text')
-                .attr('x',function(d){ return d.p.x;}).attr('y',function(d){ return d.p.y+5;}).text(function(d){return d.l;}).attr('font-size',12);
-                //.on('click',function(d){return tree.addLeaf(d.v);});
+                .each(function (d) {
+                    var newstringreplaced = d.l.replace(/\(/gi, "@(");
+                    var arr = newstringreplaced.split("@");
+                    for (i = 0; i < arr.length; i++) {
+                        d3.select(this)
+                            .attr('x',d.p.x)
+                            .attr('y',d.p.y+tree.h).attr('font-size',11)
+                            .append("tspan").attr('x',function(d){ return d.p.x;}).attr('y',d.p.y-2)
+                            .text(arr[i])
+                            .attr("dy", arr.length == 1 ? "0.6em" : (i ? "1.2em" : 0))
+                            .attr("text-anchor", "middle")
+                    }
+                });
 
             d3.select("#treesvg").append('g').attr('id','g_elabels').selectAll('text').data(tree.getEdges()).enter().append('text')
                 .attr('x',function(d){ return (d.p1.x+d.p2.x)/2+(d.p1.x < d.p2.x? 8: -8);}).attr('y',function(d){ return (d.p1.y+d.p2.y)/2;}).attr('font-size',12)
                 .text(function(d){return tree.glabels.length==0? '': Math.abs(d.l1 -d.l2);});
         }
-        initialize(div);
 
         return tree;
     }
@@ -377,14 +397,7 @@ jQuery(function($){
         {
             var id_and_lbl = split_lbl[i].split(":");
             lbl_dict[id_and_lbl[0]] = id_and_lbl[1];
-        }
-        // save time
-        var split_time = lbl.split("@");
-        var number_time = split_time.length;
-        for (var i = 0; i < number_time; i++)
-        {
-            var id_and_time = split_time[i].split(":");
-            time_dict[id_and_time[0]] = id_and_time[1];
+            time_dict[id_and_lbl[0]] = id_and_lbl[2];
         }
         var split_len = split.length;
         for (var i = 0; i < split_len; i++)
@@ -395,13 +408,14 @@ jQuery(function($){
             }
             var nbclosingbracket = split[i].split("]").length-1;
             var value = parseInt(split[i].replace("[","").replace("]","").replace(",",""));
-            tree.addLeaf(stack[stack.length-1],lbl_dict[value],'ongoing');
-            stack.push(++node);
+            tree.addLeaf(stack[stack.length-1],value,lbl_dict[value],time_dict[value],'ongoing');
+            stack.push(value);
             for(var j = 0, len = nbclosingbracket; j < len; j++)
             {
                 stack.pop();
             }
         }
+        tree.initialize();
     }
 
     function addEntry(txt)
@@ -481,6 +495,7 @@ jQuery(function($){
             if (res[1] == 'Start') // TODO: stop adding hardcode
             {
                 timer.start();
+                replaceLinesWithPaths('#treesvg');
             }
         }
         else if (res[0]=='ack') // humans -> js_server -> here
@@ -495,6 +510,14 @@ jQuery(function($){
         {
             var core_msg = msg.data.toString().replace(res[0]+':'+res[1]+':','').trim();
             build_plan(treeplan, res[1].trim(), core_msg, null);
+        }
+        else if (res[0]=='timer')
+        {
+            startSVGAnimation($('#treesvg'),res[2],res[1]);
+        }
+        else if (res[0]=='graph')
+        {
+            var g = graphlib.json.read(JSON.parse(core_msg));
         }
     });
 
