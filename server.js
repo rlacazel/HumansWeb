@@ -127,24 +127,24 @@ app.post('/action', function (req, res) {
     else if (id == 'start')
     {
         var n = planner.get_next_nodes_to_execute(plan_graph);
-        setTimeout(function(){execute_node(plan_graph.node(n));},plan_graph.node(n).delay*1000);
+        setTimeout(function(){execute_node(n);},plan_graph.node(n).delay*1000);
     }
     res.end();
 })
 
-function execute_node(node)
+function execute_node(node_id)
 {
-    io.sockets.emit('js_client', {data: 'trigger:' + node.label});
-    node.executed = true;
-    var n = planner.get_next_nodes_to_execute(plan_graph);
-    if (n != null)
+    io.sockets.emit('js_client', {data: 'trigger:' + node_id});
+    plan_graph.node(node_id).executed = true;
+    var next_id = planner.get_next_nodes_to_execute(plan_graph);
+    if (next_id != null)
     {
-        var d = plan_graph.node(n).delay*1000;
+        var d = plan_graph.node(next_id).delay*1000;
         if (d > 0)
         {
-            io.sockets.emit('js_client', {data: 'timer:' + n + ':' + d});
+            io.sockets.emit('js_client', {data: 'timer:' + next_id + ':' + d});
         }
-        setTimeout(function(){execute_node(plan_graph.node(n));},d);
+        setTimeout(function(){execute_node(next_id);},d);
     }
 }
 
