@@ -228,11 +228,6 @@ jQuery(function($){
                 graph.execute_node(res[2].trim());
             }
         }
-        else if (res[0]=='buildplan') // humans -> js_server -> here
-        {
-            var core_msg = msg.data.toString().replace(res[0]+':'+res[1]+':','').trim();
-            // build_plan(treeplan, res[1].trim(), core_msg, null);
-        }
         else if (res[0]=='timer')
         {
             startSVGAnimation($('#treesvg'),res[2],res[1]);

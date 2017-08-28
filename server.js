@@ -53,22 +53,8 @@ io.sockets.on('connection', function (socket)
         socket.emit('js_client', {data: storyline[i]});
     }
 
-    // TODO: get it from ActuPlan
-    // send plan to interface
-    var plan = '1:CommitStateInjury(i2,unknown,good):6@2:Take(nurse1,tp1):0@3:VictNotBreathing(i2,good,v2):6@4:VictDie(i2,good,v2):6@5:Apply(nurse1,tp1,patient1,i1,rleg):0';
-    splittedplan = plan.split('@');
-    var cleanedplan = '';
-    for(var i = 0; i < splittedplan.length; i++)
-    {
-        var split = splittedplan[i].split(':');
-        cleanedplan += split[0] + ':' + converter.clean_actionplan(split[1]) + ':' + split[2] + '@';
-    }
-    cleanedplan = cleanedplan.substring(0, cleanedplan.length - 1);
-    socket.emit('js_client', {data: 'buildplan:' + '[1[3[4]],2[5]]:' + cleanedplan});
-
     plan_graph = planner.build_graph();
-    var str_g = JSON.stringify(planner.get_stringified_graph(plan_graph));
-    socket.emit('js_client', {data: 'graph:' + str_g});
+    socket.emit('js_client', {data: 'graph:' + JSON.stringify(planner.get_stringified_graph(plan_graph))});
 });
 
 //==============================

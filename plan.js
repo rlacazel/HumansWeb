@@ -6,7 +6,7 @@ module.exports = {
 
     build_graph: function()
     {
-        var contents = fs.readFileSync('data/exemple.json', 'utf8');
+        var contents = fs.readFileSync('data/exemple2.json', 'utf8');
         var g = graph.json.read(JSON.parse(contents));
         return g;
     },
