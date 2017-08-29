@@ -213,10 +213,11 @@ jQuery(function($){
         }
         else if (res[0]=='trigger')
         {
-            gd.execute_node(res[1]);
+            gd.color_node_by_id(res[1]);
             if (res[1] == 0) // TODO: stop adding hardcode
             {
                 timer.start();
+                gd.color_node_by_id(2); // TO REMOVE
                 replaceLinesWithPaths('#treesvg');
             }
         }
@@ -225,7 +226,7 @@ jQuery(function($){
             // convert to plan string and put it in green if present
             if(res[1]=='success')
             {
-                graph.execute_node(res[2].trim());
+                gd.color_node_by_label(res[2].trim());
             }
         }
         else if (res[0]=='timer')

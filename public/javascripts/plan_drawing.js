@@ -42,10 +42,32 @@ function graph_drawer(g, d)
         }
     }
 
-    this.execute_node = function(node_id)
+    this.color_node_by_id = function(node_id)
     {
         this.graph.node(node_id).executed = true;
+        // Color also all line arriving to this node
+        /*var inedges = this.graph.inEdges(node_id);
+        for(var i = 0; i < inedges.length; i++)
+        {
+            if (this.graph.node(inedges[i].v).executed == true)
+            {
+                inedges[i].executed = true;
+            }
+        }*/
         this.redraw();
+    }
+
+    this.color_node_by_label = function(node_label)
+    {
+        var nodes = this.graph.nodes();
+        for(var i = 0; i < nodes.length; i++)
+        {
+            if (this.graph.node(nodes[i]).label == node_label)
+            {
+                this.color_node_by_id(nodes[i]);
+                return;
+            }
+        }
     }
 
     this.get_color_node = function(node_id)
@@ -60,15 +82,53 @@ function graph_drawer(g, d)
         }
     }
 
+    this.get_durative_edges = function()
+    {
+        var durative_edges = [];
+        var edges = this.graph.edges();
+        for (var i = 0; i < edges.length; i++)
+        {
+            if (this.graph.node(edges[i].w).controlled)
+            {
+                durative_edges.push(edges[i]);
+            }
+        }
+        return durative_edges;
+    }
+
+    this.get_color_edge = function(node_w)
+    {
+        var in_green = false;
+        if (this.graph.node(node_w).executed)
+        {
+            in_green = true;
+            var inedges = this.graph.inEdges(node_w);
+            for (var i = 0; i < inedges.length; i++)
+            {
+                if (this.graph.node(inedges[i].v).executed != true)
+                {
+                    in_green = false;
+                }
+            }
+        }
+
+        return in_green ? 'green': 'lightgrey';
+    }
+
     this.redraw = function()
     {
         var drawer = this;
-        var rectangles = d3.select("#g_rectangles").selectAll('rect').data(drawer.graph.nodes());
 
         // Update rectangle color
+        var rectangles = d3.select("#g_rectangles").selectAll('rect').data(drawer.graph.nodes());
         rectangles.transition().duration(500).attr('x',function(d){ return drawer.graph.node(d).p.x-drawer.xRadius/2;})
             .attr('y',function(d){ return drawer.graph.node(d).p.y-drawer.yRadius/2;})
             .attr("stroke", "black").attr("fill", function(d){ return drawer.get_color_node(d)});
+
+        var lines = d3.select("#g_lines").selectAll('line').data(drawer.graph.edges());
+        lines.transition().duration(500).attr('x1',function(d){ return drawer.graph.node(d.v).p.x;}).attr('y1',function(d){ return drawer.graph.node(d.v).p.y+drawer.tree.cy/2;})
+            .attr('x2',function(d){ return drawer.graph.node(d.w).p.x;}).attr('y2',function(d){ return drawer.graph.node(d.w).p.y-drawer.tree.cy/2;})
+            .attr("stroke", function(d){ return drawer.get_color_edge(d.w) });
     }
 
     this.draw = function()
@@ -81,12 +141,13 @@ function graph_drawer(g, d)
 
         d3.select("#treesvg").append('g').attr('id','g_lines').selectAll('line').data(drawer.graph.edges()).enter().append('line')
             .attr('x1',function(d){ return drawer.graph.node(d.v).p.x;}).attr('y1',function(d){ return drawer.graph.node(d.v).p.y+drawer.tree.cy/2;})
-            .attr('x2',function(d){ return drawer.graph.node(d.w).p.x;}).attr('y2',function(d){ return drawer.graph.node(d.w).p.y-drawer.tree.cy/2;}).attr("stroke", "grey");
+            .attr('x2',function(d){ return drawer.graph.node(d.w).p.x;}).attr('y2',function(d){ return drawer.graph.node(d.w).p.y-drawer.tree.cy/2;})
+            .attr("stroke", function(d){ return drawer.get_color_edge(d.w) });
 
-        d3.select("#treesvg").append('g').attr('id','g_lines_timer').selectAll('line').data(drawer.graph.edges()).enter().append('line')
+        d3.select("#treesvg").append('g').attr('id','g_lines_timer').selectAll('line').data(drawer.get_durative_edges()).enter().append('line')
             .attr('x1',function(d){ return drawer.graph.node(d.v).p.x;}).attr('y1',function(d){ return drawer.graph.node(d.v).p.y+drawer.tree.cy/2;})
-            .attr('x2',function(d){ return drawer.graph.node(d.w).p.x;}).attr('y2',function(d){ return drawer.graph.node(d.w).p.y-drawer.tree.cy/2;}).attr("stroke", "grey")
-            .attr('id',function(d){ return d.w;});
+            .attr('x2',function(d){ return drawer.graph.node(d.w).p.x;}).attr('y2',function(d){ return drawer.graph.node(d.w).p.y-drawer.tree.cy/2;})
+            .attr("stroke", "lightgrey").attr('id',function(d){ return d.w;});
 
         d3.select("#treesvg").append('g').attr('id','g_rectangles').selectAll('rect').data(drawer.graph.nodes()).enter()
             .append('rect').attr('x',function(d){ return drawer.graph.node(d).p.x-drawer.xRadius/2;}).attr('y',function(d){ return drawer.graph.node(d).p.y-drawer.yRadius/2;})
