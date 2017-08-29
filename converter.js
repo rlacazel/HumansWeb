@@ -3,8 +3,12 @@ module.exports = {
     convert_plan_to_ev: function(plan_action)
     {
         var action_ev;
-        var fullparams = plan_action.match(/\(([^)]+)\)/)[1];
-        var params = fullparams.split(',');
+        var match_param = plan_action.match(/\(([^)]+)\)/);
+        if (match_param == null)
+        {
+            return null;
+        }
+        var params = match_param[1].split(',');
         // Take(character,objecturi)
         if(plan_action.startsWith('Take('))
         {
@@ -24,31 +28,31 @@ module.exports = {
             action_ev+=':'+params[2]; // patient
             action_ev+=':'+params[4]; // bodypart
         }
-        // CommitStateInjury(injury,previousstate,newtstae,patient,bodypart) -> add victim and bodypart
+        // CommitStateInjury(newtstae,patient,bodypart) -> add victim and bodypart
         else if(plan_action.startsWith('CommitStateInjury('))
         {
             action_ev = "attribute:is-bloodstain-";
-            var body = params[4];
+            var body = params[2];
             if(body.startsWith('r')) {
                 action_ev += "right-"
             } else if (body.startsWith('l')) {
                 action_ev += "left-"
             }
             action_ev += body.substring(1) + ':';
-            var state = params[2];
-            if(state.equal('good')) {
+            var state = params[0];
+            if(state == 'good') {
                 action_ev += "0";
-            } else  if(state.equal('average')) {
+            } else  if(state == 'average') {
                 action_ev += "0.5";
-            } else  if(state.equal('bad')) {
+            } else  if(state == 'bad') {
                 action_ev += "1";
             }
-            action_ev += ':' + params[3];
+            action_ev += ':' + params[1];
         }
         else if(plan_action.startsWith('VictNotBreathing('))
         {
             action_ev = "attribute:is-breathing:0:";
-            action_ev += params[2];
+            action_ev += params[0];
         }
         else if(plan_action.startsWith('VictDie('))
         {

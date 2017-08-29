@@ -121,6 +121,11 @@ app.post('/action', function (req, res) {
 function execute_node(node_id)
 {
     io.sockets.emit('js_client', {data: 'trigger:' + node_id});
+    var command = converter.convert_plan_to_ev(plan_graph.node(node_id).label);
+    if (command != null)
+    {
+        send_message_to_humans(command);
+    }
     plan_graph.node(node_id).executed = true;
     var next_id = planner.get_next_nodes_to_execute(plan_graph);
     if (next_id != null)
@@ -231,6 +236,7 @@ function send_message_to_humans(msg)
 {
     if (java_client != null)
     {
+        console.log('Send to java: ' + msg);
         java_client.write(msg+ '\n');
     }
 }
