@@ -235,6 +235,10 @@ jQuery(function($){
         }
         else if (res[0]=='graph')
         {
+            // plan receive from server:
+            // Reset scenario and remove previous plan before to redraw new one
+            timer.stop();
+            $('#treesvg').remove();
             graph = graphlib.json.read(JSON.parse(core_msg));
             gd = new graph_drawer(graph, "#treeplan");
             gd.draw();

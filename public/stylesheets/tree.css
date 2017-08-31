@@ -11,6 +11,11 @@ line{
     //stroke:grey;
     stroke-width:2px;
 }
+
+rect{
+    stroke-width:2px;
+}
+
 #treesvg g text:hover, #treesvg g rectangle:hover{
     cursor:pointer;
 }

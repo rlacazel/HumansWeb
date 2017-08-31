@@ -82,6 +82,18 @@ function graph_drawer(g, d)
         }
     }
 
+    this.get_color_stroke = function(node_id)
+    {
+        if (!this.graph.node(node_id).executed)
+        {
+            return 'grey';
+        }
+        else
+        {
+            return 'green';
+        }
+    }
+
     this.get_durative_edges = function()
     {
         var durative_edges = [];
@@ -123,7 +135,7 @@ function graph_drawer(g, d)
         var rectangles = d3.select("#g_rectangles").selectAll('rect').data(drawer.graph.nodes());
         rectangles.transition().duration(500).attr('x',function(d){ return drawer.graph.node(d).p.x-drawer.xRadius/2;})
             .attr('y',function(d){ return drawer.graph.node(d).p.y-drawer.yRadius/2;})
-            .attr("stroke", "black").attr("fill", function(d){ return drawer.get_color_node(d)});
+            .attr("stroke", function(d){ return drawer.get_color_stroke(d)}).attr("fill", function(d){ return drawer.get_color_node(d)});
 
         var lines = d3.select("#g_lines").selectAll('line').data(drawer.graph.edges());
         lines.transition().duration(500).attr('x1',function(d){ return drawer.graph.node(d.v).p.x;}).attr('y1',function(d){ return drawer.graph.node(d.v).p.y+drawer.tree.cy/2;})

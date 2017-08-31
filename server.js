@@ -85,30 +85,33 @@ app.post('/action', function (req, res) {
         var action = req.body.action;
         var part= req.body.part;
         var victim = req.body.victim;
-        console.log('send: gotoandanimate:'+nurse+':'+action+':'+part+':'+victim);
-        var txt = 'action:GotoAndAnimate('+nurse+', '+action+', '+part+', '+victim+')';
+        var msg = 'gotoandanimate:'+nurse+':'+action+':'+part+':'+victim;
+        console.log('send: ' + msg);
+        var txt = 'action:' + converter.convert_humans_msg_to_storyline_msg(msg);
         storyline.push(txt)
         io.sockets.emit('js_client', {data: txt});
-        send_message_to_humans('gotoandanimate:'+nurse+':'+action+':'+part+':'+victim);
+        send_message_to_humans(msg);
     }
     else if (id == 'gotoandtake') {
         var nurse = req.body.nurse_take;
         var object = req.body.object_take;
-        console.log('send: gotoandtake:'+nurse+':'+object);
-        var txt = 'action:GotoAndTake('+nurse+', '+object+')';
+        var msg = 'gotoandtake:'+nurse+':'+object;
+        console.log('send: ' + msg);
+        var txt = 'action:' + converter.convert_humans_msg_to_storyline_msg(msg);
         storyline.push(txt);
         io.sockets.emit('js_client', {data: txt});
-        send_message_to_humans('gotoandtake:'+nurse+':'+object);
+        send_message_to_humans(msg);
     }
     else if (id == 'attribute') {
         var attr = req.body.attr;
         var value = req.body.attr_value;
         var object = req.body.attr_object;
-        console.log('send: attribute:'+attr+':'+value+':'+object);
-        var txt = 'action:Attribute('+attr+', '+value+', '+object+')';
+        var msg = 'attribute:'+attr+':'+value+':'+object;
+        console.log('send: ' + msg);
+        var txt = 'action:' + converter.convert_humans_msg_to_storyline_msg(msg);
         storyline.push(txt);
         io.sockets.emit('js_client', {data: txt});
-        send_message_to_humans('attribute:'+attr+':'+value+':'+object);
+        send_message_to_humans(msg);
     }
     else if (id == 'start')
     {
@@ -121,10 +124,16 @@ app.post('/action', function (req, res) {
 function execute_node(node_id)
 {
     io.sockets.emit('js_client', {data: 'trigger:' + node_id});
-    var command = converter.convert_plan_to_ev(plan_graph.node(node_id).label);
-    if (command != null)
+    var commands = converter.convert_action_plan_to_action_executable_in_ev(plan_graph.node(node_id).label);
+    if (commands.length > 0)
     {
-        send_message_to_humans(command);
+        for(var i = 0; i < commands.length; i++)
+        {
+            var txt = 'action:' + converter.convert_humans_msg_to_storyline_msg(commands[i]);
+            storyline.push(txt);
+            io.sockets.emit('js_client', {data: txt});
+            send_message_to_humans(commands[i]);
+        }
     }
     plan_graph.node(node_id).executed = true;
     var next_id = planner.get_next_nodes_to_execute(plan_graph);

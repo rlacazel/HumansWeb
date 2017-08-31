@@ -44,7 +44,7 @@ function replaceLinesWithPaths(parentElement) {
             .attr('d', convertedPath)
             .attr('fill', $(this).attr('fill'))
             .attr('stroke', "green")
-            .attr('stroke-width', 3)
+            .attr('stroke-width', 2)
             .insertAfter(this);
 
     });
