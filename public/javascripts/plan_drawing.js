@@ -62,7 +62,7 @@ function graph_drawer(g, d)
         var nodes = this.graph.nodes();
         for(var i = 0; i < nodes.length; i++)
         {
-            if (this.graph.node(nodes[i]).label == node_label)
+            if (this.graph.node(nodes[i]).label.startsWith(node_label))
             {
                 this.color_node_by_id(nodes[i]);
                 return;

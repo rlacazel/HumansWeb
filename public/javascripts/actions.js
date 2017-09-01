@@ -217,7 +217,7 @@ jQuery(function($){
             if (res[1] == 0) // TODO: stop adding hardcode
             {
                 timer.start();
-                gd.color_node_by_id(2); // TO REMOVE
+                // gd.color_node_by_id(2); // TO REMOVE
                 replaceLinesWithPaths('#treesvg');
             }
         }

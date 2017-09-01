@@ -7,22 +7,31 @@ module.exports = {
         if (match_param != null) {
             var params = match_param[1].split(',');
             // Take(character,objecturi)
-            if (plan_action.startsWith('Take(')) {
+            /*if (plan_action.startsWith('Take(')) {
                 var action_ev = "gotoandtake";
                 for (i = 0; i < params.length; i++) {
                     action_ev += ':' + params[i];
                 }
                 actions_ev.push(action_ev);
-            }
+            }*/
             // Apply(character,actiontype,patient,injury,bodypart)
-            else if (plan_action.startsWith('Apply(')) {
-                var action_ev = "gotoandanimate";
-                // we don't care about injury, it is specific to planner
-                action_ev += ':' + params[0]; // character
-                action_ev += ':' + params[1]; // action type
-                action_ev += ':' + params[2]; // patient
-                action_ev += ':' + params[4]; // bodypart
-                actions_ev.push(action_ev);
+            if (plan_action.startsWith('Apply(')) {
+                if (plan_action.endsWith('*')) // fail action
+                {
+                    var action_ev = "removeinstance";
+                    // we don't care about injury, it is specific to planner
+                    action_ev += ':' + params[1]; // uri
+                    actions_ev.push(action_ev);
+                }
+                /*else { // success action
+                    var action_ev = "gotoandanimate";
+                    // we don't care about injury, it is specific to planner
+                    action_ev += ':' + params[0]; // character
+                    action_ev += ':' + params[1]; // action type
+                    action_ev += ':' + params[2]; // patient
+                    action_ev += ':' + params[4]; // bodypart
+                    actions_ev.push(action_ev);
+                }*/
             }
             // CommitStateInjury(newtstae,patient,bodypart) -> add victim and bodypart
             else if (plan_action.startsWith('CommitStateInjury(')) {
@@ -63,7 +72,8 @@ module.exports = {
     },
     convert_humans_msg_to_storyline_msg: function(msg)
     {
-        var res = msg.replace('attribute','Attribute').replace('gotoandanimate','GotoAndAnimate').replace('gotoandtake','GotoAndTake');
+        var res = msg.replace('attribute','Attribute').replace('gotoandanimate','GotoAndAnimate')
+            .replace('gotoandtake','GotoAndTake').replace('removeinstance','RemoveInstance');
         var split = res.split(':');
         var res2 = '';
         for(var i = 1; i < split.length; i++)

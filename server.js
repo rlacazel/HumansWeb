@@ -191,6 +191,7 @@ net.createServer(function(sock) {
     java_client.on('close', function() {
         console.log('Connection closed');
         io.sockets.emit('js_client', {data: 'error:Virtual Environement not running !'});
+        storyline = [];
         java_client = null;
         uritype = null;
     });
@@ -199,6 +200,7 @@ net.createServer(function(sock) {
         console.log("Client closed");
         console.log(exception.stack);
         io.sockets.emit('js_client', {data: 'error:Virtual Environement not running !'});
+        storyline = [];
         java_client = null;
         uritype = null;
     });
@@ -221,6 +223,9 @@ net.createServer(function(sock) {
             if (string.startsWith("ack:"))
             {
                 io.sockets.emit('js_client', {data: string});
+                // TODO: if receive ack:success -> check if there is action to perform calling convert_action_plan_to_action_executable_in_ev
+                // execute action if not empty. It is the case when receiving ack of ApplyFail for exemple, which has the result to remove the object
+                // 2. or directly send to the ev with the gotoandanimate that it has to fail
             }
             // uritype for the mapping between types and uris
             else if (string.startsWith("uritype:"))
