@@ -44,7 +44,7 @@ function graph_drawer(g, d)
 
     this.color_node_by_id = function(node_id)
     {
-        this.graph.node(node_id).executed = true;
+        this.graph.node(node_id).state = 'executed';
         this.redraw();
     }
 
@@ -63,7 +63,7 @@ function graph_drawer(g, d)
 
     this.get_color_node = function(node_id)
     {
-        if (!this.graph.node(node_id).executed)
+        if (this.graph.node(node_id).state != 'executed')
         {
             return 'lightgrey';
         }
@@ -75,7 +75,7 @@ function graph_drawer(g, d)
 
     this.get_color_stroke = function(node_id)
     {
-        if (!this.graph.node(node_id).executed)
+        if (this.graph.node(node_id).state != 'executed')
         {
             return 'grey';
         }
@@ -102,13 +102,13 @@ function graph_drawer(g, d)
     this.get_color_edge = function(node_w)
     {
         var in_green = false;
-        if (this.graph.node(node_w).executed)
+        if (this.graph.node(node_w).state == 'executed')
         {
             in_green = true;
             var inedges = this.graph.inEdges(node_w);
             for (var i = 0; i < inedges.length; i++)
             {
-                if (this.graph.node(inedges[i].v).executed != true)
+                if (this.graph.node(inedges[i].v).state != 'executed')
                 {
                     in_green = false;
                 }
@@ -155,7 +155,22 @@ function graph_drawer(g, d)
         d3.select("#treesvg").append('g').attr('id','g_rectangles').selectAll('rect').data(drawer.graph.nodes()).enter()
             .append('rect').attr('x',function(d){ return drawer.graph.node(d).p.x-drawer.xRadius/2;}).attr('y',function(d){ return drawer.graph.node(d).p.y-drawer.yRadius/2;})
             .attr('width',drawer.xRadius).attr('height',drawer.yRadius)
-            .attr("stroke", "grey").attr("fill", function(d){ return drawer.get_color_node(d)});
+            .attr("stroke", "grey").attr("fill", function(d){ return drawer.get_color_node(d)})
+            .on('click', function(d) {
+                $.ajax({
+                    type: "POST",
+                    url: "/simulate_action",
+                    data: {
+                        id: d
+                    },
+                    success: function(result) {
+                        // alert('ok');
+                    },
+                    error: function(result) {
+                        // alert('error');
+                    }
+                });
+            });
 
         d3.select("#treesvg").append('g').attr('id','g_labels').selectAll('text').data(drawer.graph.nodes()).enter().append('text')
             .each(function (d) {

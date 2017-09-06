@@ -214,19 +214,24 @@ jQuery(function($){
         else if (res[0]=='trigger')
         {
             gd.color_node_by_id(res[1]);
-            if (res[1] == 0) // TODO: stop adding hardcode
-            {
-                timer.start();
-                // gd.color_node_by_id(2); // TO REMOVE
-                replaceLinesWithPaths('#treesvg');
-            }
+        }
+        else if (res[0]=='startscenario')
+        {
+            timer.start();
+            replaceLinesWithPaths('#treesvg');
+        }
+        else if (res[0]=='stopscenario')
+        {
+            timer.stop();
         }
         else if (res[0]=='ack') // humans -> js_server -> here
         {
             // convert to plan string and put it in green if present
             if(res[1]=='success')
             {
-                gd.color_node_by_label(res[2].trim());
+                var node_label = res[2].trim();
+                // this.graph.node(node_id).state = 'executed';
+                gd.color_node_by_label(node_label);
             }
         }
         else if (res[0]=='timer')

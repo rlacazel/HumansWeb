@@ -19,6 +19,7 @@ var storyline = [];
 var java_client;
 var uritype;
 var plan_graph;
+var scenario_ongoing = false;
 
 // IO
 var io = require('socket.io').listen(app.listen(3700));
@@ -77,6 +78,13 @@ app.get('/index.html', function (req, res)
     res.render('graph', { content: '' });
 })
 
+app.post('/simulate_action', function (req, res) {
+    var id = req.body.id;
+    plan_graph.node(id).state = 'executed';
+    io.sockets.emit('js_client', {data: 'ack:success:' + plan_graph.node(id).label});
+    res.end();
+})
+
 // Receive command to execute in VE
 app.post('/action', function (req, res) {
     var id = req.body.id;
@@ -113,13 +121,38 @@ app.post('/action', function (req, res) {
         io.sockets.emit('js_client', {data: txt});
         send_message_to_humans(msg);
     }
-    else if (id == 'start')
+    else if (id == 'startscenario')
     {
-        var n = planner.get_next_nodes_to_execute(plan_graph);
-        setTimeout(function(){execute_node(n);},plan_graph.node(n).delay*1000);
+        io.sockets.emit('js_client', {data: 'startscenario'});
+        scenario_ongoing = true;
+        loop();
+    }
+    else if (id == 'stopscenario')
+    {
+        scenario_ongoing = false;
+        io.sockets.emit('js_client', {data: 'stopscenario'});
     }
     res.end();
 })
+
+// Loop every second
+function loop()
+{
+    var n = planner.get_next_nodes_to_execute(plan_graph);
+    if (n != null)
+    {
+        var d = plan_graph.node(n).delay*1000;
+        if (d > 0)
+        {
+            io.sockets.emit('js_client', {data: 'timer:' + n + ':' + d});
+        }
+        plan_graph.node(n).state = 'ongoing';
+        setTimeout(function(){execute_node(n);},d);
+    }
+    if (scenario_ongoing) {
+        setTimeout(function () {loop();}, 1000);
+    }
+}
 
 function execute_node(node_id)
 {
@@ -135,17 +168,7 @@ function execute_node(node_id)
             send_message_to_humans(commands[i]);
         }
     }
-    plan_graph.node(node_id).executed = true;
-    var next_id = planner.get_next_nodes_to_execute(plan_graph);
-    if (next_id != null)
-    {
-        var d = plan_graph.node(next_id).delay*1000;
-        if (d > 0)
-        {
-            io.sockets.emit('js_client', {data: 'timer:' + next_id + ':' + d});
-        }
-        setTimeout(function(){execute_node(next_id);},d);
-    }
+    plan_graph.node(node_id).state = 'executed';
 }
 
 // custom 404 page
@@ -223,9 +246,6 @@ net.createServer(function(sock) {
             if (string.startsWith("ack:"))
             {
                 io.sockets.emit('js_client', {data: string});
-                // When receive an ack, try to relaunch plan to see if new action can be executed
-                /*var splitted = string.split(':');
-                var n = planner.get_next_nodes_to_execute_after_node(plan_graph,splitted[2]);*/
             }
             // uritype for the mapping between types and uris
             else if (string.startsWith("uritype:"))

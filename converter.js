@@ -86,5 +86,20 @@ module.exports = {
         }
         res2 += ')'
         return res2;
-    }
+    }/*,
+    convert_humans_msg_to_plan_msg: function(msg)
+    {
+        var split = res.split(':');
+        var res = null;
+        if(split[0].equal('gotoandtake'))
+        {
+            res = 'Take(';
+            res += split[1] + ',' + split[2] + ')';
+        }
+        else if (split[0].equal('gotoandanimate'))
+        {
+
+        }
+        return res2;
+    }*/
 };
