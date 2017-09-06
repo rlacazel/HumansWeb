@@ -223,9 +223,9 @@ net.createServer(function(sock) {
             if (string.startsWith("ack:"))
             {
                 io.sockets.emit('js_client', {data: string});
-                // TODO: if receive ack:success -> check if there is action to perform calling convert_action_plan_to_action_executable_in_ev
-                // execute action if not empty. It is the case when receiving ack of ApplyFail for exemple, which has the result to remove the object
-                // 2. or directly send to the ev with the gotoandanimate that it has to fail
+                // When receive an ack, try to relaunch plan to see if new action can be executed
+                /*var splitted = string.split(':');
+                var n = planner.get_next_nodes_to_execute_after_node(plan_graph,splitted[2]);*/
             }
             // uritype for the mapping between types and uris
             else if (string.startsWith("uritype:"))

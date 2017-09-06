@@ -45,15 +45,6 @@ function graph_drawer(g, d)
     this.color_node_by_id = function(node_id)
     {
         this.graph.node(node_id).executed = true;
-        // Color also all line arriving to this node
-        /*var inedges = this.graph.inEdges(node_id);
-        for(var i = 0; i < inedges.length; i++)
-        {
-            if (this.graph.node(inedges[i].v).executed == true)
-            {
-                inedges[i].executed = true;
-            }
-        }*/
         this.redraw();
     }
 

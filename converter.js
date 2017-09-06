@@ -15,26 +15,18 @@ module.exports = {
                 actions_ev.push(action_ev);
             }*/
             // Apply(character,actiontype,patient,injury,bodypart)
-            if (plan_action.startsWith('Apply(')) {
-                if (plan_action.endsWith('*')) // fail action
-                {
-                    var action_ev = "removeinstance";
-                    // we don't care about injury, it is specific to planner
-                    action_ev += ':' + params[1]; // uri
-                    actions_ev.push(action_ev);
-                }
-                /*else { // success action
-                    var action_ev = "gotoandanimate";
-                    // we don't care about injury, it is specific to planner
-                    action_ev += ':' + params[0]; // character
-                    action_ev += ':' + params[1]; // action type
-                    action_ev += ':' + params[2]; // patient
-                    action_ev += ':' + params[4]; // bodypart
-                    actions_ev.push(action_ev);
-                }*/
+            /*if (plan_action.startsWith('Apply(')) {
+                var action_ev = "gotoandanimate";
+                // we don't care about injury, it is specific to planner
+                action_ev += ':' + params[0]; // character
+                action_ev += ':' + params[1]; // action type
+                action_ev += ':' + params[2]; // patient
+                action_ev += ':' + params[4]; // bodypart
+                actions_ev.push(action_ev);
             }
             // CommitStateInjury(newtstae,patient,bodypart) -> add victim and bodypart
-            else if (plan_action.startsWith('CommitStateInjury(')) {
+            else */
+            if (plan_action.startsWith('CommitStateInjury(')) {
                 var action_ev = "attribute:is-bloodstain-";
                 var body = params[2];
                 if (body.startsWith('r')) {
@@ -57,6 +49,11 @@ module.exports = {
             else if (plan_action.startsWith('VictNotBreathing(')) {
                 var action_ev = "attribute:is-breathing:0:";
                 action_ev += params[0];
+                actions_ev.push(action_ev);
+            }
+            else if (plan_action.startsWith('GarrotBreak(')) {
+                var action_ev = "removeinstance";
+                action_ev += ':' + params[0]; // uri
                 actions_ev.push(action_ev);
             }
             else if (plan_action.startsWith('VictDie(')) {
