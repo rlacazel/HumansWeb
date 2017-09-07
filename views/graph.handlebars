@@ -16,7 +16,9 @@
         </div>
 
         <div id="storyline" style="border: 1px solid #000;">
-            <div class="values" style="text-align: center">00:00:00</div>
+            <div class="timer">
+                <span class="hour">00</span>:<span class="minute">00</span>:<span class="second">00</span>
+            </div>
             <ul id="storylinelist"></ul>
         </div>
     </div>
@@ -109,8 +111,15 @@
                     </div>
                 </form>
             </div>
+            <div style="text-align: center;">
+                <a name="startscenario" href=""><img height="48px" width="48px" src="images/play.png"/></a>
+                <!--<a name="pausescenario" href=""><img height="48px" width="48px" src="images/pause.png"/></a>-->
+                <a name="stopscenario" href=""><img src="images/stop.png"/></a>
+            </div>
+           <!-- <a name="pausescenario" href=""><img src="images/stop.png"/></a>
             <button style="width: 100%" name="startscenario" type="submit" class="button upper outline small">Start scénario</button>
             <button style="width: 100%" name="stopscenario" type="submit" class="button upper outline small">Stop scénario</button>
+            <button style="width: 100%" name="pausescenario" type="submit" class="button upper outline small">Pause scénario</button>-->
         </div>
     </div>
 </div>

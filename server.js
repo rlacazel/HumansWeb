@@ -39,9 +39,9 @@ io.sockets.on('connection', function (socket)
     console.log('Connection from web page');
     if (java_client == null)
     {
-        io.sockets.emit('js_client', {data: 'error:Virtual Environement not running !'});
+        io.sockets.emit('js_client', {data: 'error:The virtual environment is offline !'});
     }
-    else if (uritype == null)
+    else if (uritype == null || uritype.length < 100)
     {
         send_message_to_humans('askuritype');
     }
@@ -127,10 +127,16 @@ app.post('/action', function (req, res) {
         scenario_ongoing = true;
         loop();
     }
+    else if (id == 'pausescenario')
+    {
+        scenario_ongoing = false;
+        io.sockets.emit('js_client', {data: 'pausescenario'})
+    }
     else if (id == 'stopscenario')
     {
         scenario_ongoing = false;
-        io.sockets.emit('js_client', {data: 'stopscenario'});
+        io.sockets.emit('js_client', {data: 'stopscenario'});;
+        storyline = [];
     }
     res.end();
 })
@@ -243,8 +249,17 @@ net.createServer(function(sock) {
         }
         else {
             // Receive from humans ack for trigger or success of action
+            // if it is an ack success, set action in plan as executed
             if (string.startsWith("ack:"))
             {
+                var splitted = string.split(':');
+                if (splitted[1]=='success')
+                {
+                    var id = planner.get_id_from_label(plan_graph,splitted[2].trim())
+                    if (id!=null) {
+                        plan_graph.node(id).state = 'executed';
+                    }
+                }
                 io.sockets.emit('js_client', {data: string});
             }
             // uritype for the mapping between types and uris

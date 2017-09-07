@@ -142,6 +142,22 @@ jQuery(function($){
         });
     });
 
+    $("a").click(function(e) {
+        e.preventDefault();
+        $.ajax({
+            type: "POST",
+            url: "/action",
+            data: {
+                id: $(this).attr('name')
+            },
+            success: function(result) {
+                // alert('ok');
+            },
+            error: function(result) {
+                // alert('error');
+            }
+        });
+    });
 
     function addEntry(txt)
     {
@@ -149,7 +165,8 @@ jQuery(function($){
         list.append('li').text(txt);
     }
 
-    var timer = new Timer();
+
+    var timer = new _timer();
     var graph, gd;
 
     var socket = io.connect('http://localhost:3700');
@@ -217,12 +234,21 @@ jQuery(function($){
         }
         else if (res[0]=='startscenario')
         {
-            timer.start();
+            timer.start(1000);
             replaceLinesWithPaths('#treesvg');
+        }
+        else if (res[0]=='pausescenario')
+        {
+            timer.pause();
         }
         else if (res[0]=='stopscenario')
         {
             timer.stop();
+            timer.reset(0);
+            d3.select("#storylinelist").empty();
+            $("#storylinelist").load(location.href + " #storylinelist");
+            /*d3.select("#g_lines_timer path").empty();
+            $("#g_lines_timer").load(location.href + " #g_lines_timer");*/
         }
         else if (res[0]=='ack') // humans -> js_server -> here
         {
@@ -230,7 +256,6 @@ jQuery(function($){
             if(res[1]=='success')
             {
                 var node_label = res[2].trim();
-                // this.graph.node(node_id).state = 'executed';
                 gd.color_node_by_label(node_label);
             }
         }
@@ -242,7 +267,7 @@ jQuery(function($){
         {
             // plan receive from server:
             // Reset scenario and remove previous plan before to redraw new one
-            timer.stop();
+            timer.reset(0);
             $('#treesvg').remove();
             graph = graphlib.json.read(JSON.parse(core_msg));
             gd = new graph_drawer(graph, "#treeplan");
@@ -250,12 +275,6 @@ jQuery(function($){
         }
     });
 
-    timer.addEventListener('secondsUpdated', function (e) {
-        $('#storyline .values').html(timer.getTimeValues().toString());
-    });
-    timer.addEventListener('started', function (e) {
-        $('#storyline .values').html(timer.getTimeValues().toString());
-    });
 });
 
 // radial timer : https://codepen.io/anon/pen/yoqYQV

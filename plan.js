@@ -16,10 +16,10 @@ module.exports = {
     },
     get_id_from_label: function(g, label)
     {
-        var nodes = this.graph.nodes();
+        var nodes = g.nodes();
         for(var i = 0; i < nodes.length; i++)
         {
-            if (this.graph.node(nodes[i]).label.startsWith(label)) {
+            if (g.node(nodes[i]).label.startsWith(label)) {
                 return i;
             }
         }
