@@ -247,8 +247,6 @@ jQuery(function($){
             timer.reset(0);
             d3.select("#storylinelist").empty();
             $("#storylinelist").load(location.href + " #storylinelist");
-            /*d3.select("#g_lines_timer path").empty();
-            $("#g_lines_timer").load(location.href + " #g_lines_timer");*/
         }
         else if (res[0]=='ack') // humans -> js_server -> here
         {
