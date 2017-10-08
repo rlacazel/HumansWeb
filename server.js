@@ -16,6 +16,7 @@ app.use(express.static('public'));
 
 // globale variables
 var storyline = [];
+var timeouts_handler = [];
 var java_client;
 var uritype;
 var plan_graph;
@@ -135,8 +136,13 @@ app.post('/action', function (req, res) {
     else if (id == 'stopscenario')
     {
         scenario_ongoing = false;
+        for (var i = 0; i < timeouts_handler.length; i++) {
+            clearTimeout(timeouts_handler[i]);
+        }
         io.sockets.emit('js_client', {data: 'stopscenario'});;
         storyline = [];
+        plan_graph = planner.build_graph();
+        io.sockets.emit('js_client', {data: 'graph:' + JSON.stringify(planner.get_stringified_graph(plan_graph))});
     }
     res.end();
 })
@@ -144,37 +150,41 @@ app.post('/action', function (req, res) {
 // Loop every second
 function loop()
 {
-    var n = planner.get_next_nodes_to_execute(plan_graph);
-    if (n != null)
+    if (scenario_ongoing)
     {
-        var d = plan_graph.node(n).delay*1000;
-        if (d > 0)
+        var n = planner.get_next_nodes_to_execute(plan_graph);
+        if (n != null)
         {
-            io.sockets.emit('js_client', {data: 'timer:' + n + ':' + d});
+            var d = plan_graph.node(n).delay*1000;
+            if (d > 0)
+            {
+                io.sockets.emit('js_client', {data: 'timer:' + n + ':' + d});
+            }
+            plan_graph.node(n).state = 'ongoing';
+            const timeoutObj = setTimeout(function(){execute_node(n);},d);
+            timeouts_handler.push(timeoutObj);
+
         }
-        plan_graph.node(n).state = 'ongoing';
-        setTimeout(function(){execute_node(n);},d);
-    }
-    if (scenario_ongoing) {
         setTimeout(function () {loop();}, 1000);
     }
 }
 
 function execute_node(node_id)
 {
-    io.sockets.emit('js_client', {data: 'trigger:' + node_id});
-    var commands = converter.convert_action_plan_to_action_executable_in_ev(plan_graph.node(node_id).label);
-    if (commands.length > 0)
+    if (scenario_ongoing)
     {
-        for(var i = 0; i < commands.length; i++)
-        {
-            var txt = 'action:' + converter.convert_humans_msg_to_storyline_msg(commands[i]);
-            storyline.push(txt);
-            io.sockets.emit('js_client', {data: txt});
-            send_message_to_humans(commands[i]);
+        io.sockets.emit('js_client', {data: 'trigger:' + node_id});
+        var commands = converter.convert_action_plan_to_action_executable_in_ev(plan_graph.node(node_id).label);
+        if (commands.length > 0) {
+            for (var i = 0; i < commands.length; i++) {
+                var txt = 'action:' + converter.convert_humans_msg_to_storyline_msg(commands[i]);
+                storyline.push(txt);
+                io.sockets.emit('js_client', {data: txt});
+                send_message_to_humans(commands[i]);
+            }
         }
+        plan_graph.node(node_id).state = 'executed';
     }
-    plan_graph.node(node_id).state = 'executed';
 }
 
 // custom 404 page
@@ -291,3 +301,29 @@ function send_message_to_humans(msg)
 }
 
 console.log('Server listening on ' + HOST +':'+ PORT);
+
+/* var java_process = require('java_process');
+
+ var jp = java_process.config('ActuPlan.jar', '-h 0 -nbThreads 1 exemples/jail.apl exemples/jail-01.apl -simulatePlan', function() {
+ jp.on('stdout', function(data) {
+ console.log("Some message java sent through System.out: ", String(data));
+ });
+ jp.on('stderr', function(data) {
+ console.log("Some message error: ", String(data));
+ });
+
+ jp.writeDataToProcess('Some message to input to java process');
+ });
+
+ jp.onDataOnStdOut('plop');
+ java_process.checkJava();
+
+ var exec = require('child_process').exec, child;
+ child = exec('java -jar ActuPlan.jar -h 0 -nbThreads 1 exemples/jail.apl exemples/jail-01.apl -simulatePlan',
+ function (error, stdout, stderr){
+ console.log('stdout: ' + stdout);
+ //console.log('stderr: ' + stderr);
+ if(error !== null){
+ console.log('exec error: ' + error);
+ }
+ });*/
