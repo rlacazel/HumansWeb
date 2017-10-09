@@ -63,6 +63,11 @@ io.sockets.on('connection', function (socket)
 //======== ROUTING SERVER ======
 //==============================
 
+app.get('/game.html', function (req, res)
+{
+    res.render('game', { content: '', layout: 'maingame.handlebars' });
+})
+
 // This responds with "Hello World" on the homepage
 app.get('/', function (req, res) {
     res.render('graph', { content: '' });
