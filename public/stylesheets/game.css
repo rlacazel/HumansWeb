@@ -1,0 +1,26 @@
+.upper, .lower {
+    position: absolute;
+    left: 0;
+    right: 0;
+    border: 1px solid black;
+}
+
+#canvascontainer {
+    width: 800px;
+    height: 600px;
+    margin: auto;
+    position: absolute;
+    top: 0; left: 0; bottom: 0; right: 0;
+}
+
+.upper {
+    top: 0;
+    vertical-align: middle;
+    height: 75%;
+}
+
+.lower {
+    bottom: 0;
+    height: 25%;
+    overflow:scroll;
+}
